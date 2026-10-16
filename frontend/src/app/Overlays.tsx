@@ -1,10 +1,9 @@
-import { useEffect, useState, type ReactNode } from "react";
-import ReactMarkdown from "react-markdown";
+import { useState, type ReactNode } from "react";
 import { BellRing, CircleCheck, Eye, FlaskConical, HandCoins, ShieldAlert, X } from "lucide-react";
 import { api } from "../lib/api";
-import { cx, date, dateTime, HOME_CURRENCY, initials } from "../lib/format";
+import { cx, dateTime, HOME_CURRENCY, initials } from "../lib/format";
 import { useApi, useStore } from "../lib/store";
-import { AppIcon, Badge, Button, Dialog, Note, Sheet, Wordmark } from "../ui";
+import { AppIcon, Button, Dialog, Sheet, Wordmark } from "../ui";
 
 /** Demo controls: everything a judge needs to drive the sandbox, kept out of the student's way. */
 export function DemoDrawer() {
@@ -176,7 +175,7 @@ export function Onboarding() {
     { icon: <Eye className="h-5 w-5" />, title: "What the AI sees", body: "Your questions and sandbox data, with account numbers masked. Please don't type real personal details." },
   ];
   return (
-    <Dialog open onClose={() => undefined} dismissable={false} testId="onboarding">
+    <Dialog open onClose={() => undefined} dismissable={false} testId="onboarding" label="Welcome to Remi">
       <Wordmark height={32} />
       <h1 className="mt-8 text-h1">Welcome to Remi</h1>
       <p className="mt-2 text-body text-ink-muted">You're {session.user.name.split(" ")[0]}: {session.user.tagline}. You can switch profiles any time.</p>
@@ -193,33 +192,3 @@ export function Onboarding() {
     </Dialog>
   );
 }
-
-/** Help article in a side panel (opened from source chips in chat). */
-export function ArticleSheet() {
-  const { kbSlug, openKb } = useStore();
-  const [art, setArt] = useState<any>(null);
-  useEffect(() => {
-    if (!kbSlug) return;
-    setArt(null);
-    api.get<any>(`/knowledge/${kbSlug}`).then(setArt).catch(() => setArt({ title: "Article not found", body: "This article could not be loaded." }));
-  }, [kbSlug]);
-  return (
-    <Sheet open={!!kbSlug} onClose={() => openKb(null)} title={art?.title ?? "Help"} width="lg">
-      {art ? <ArticleBody article={art} /> : <div className="p-6 text-small text-ink-muted">Loading…</div>}
-    </Sheet>
-  );
-}
-
-export function ArticleBody({ article }: { article: any }) {
-  return (
-    <div data-testid="kb-article" className="px-6 py-6">
-      <div className="mb-5 flex flex-wrap gap-2">
-        {article.illustrative && <Badge tone="warning">Illustrative · verify with official sources</Badge>}
-        {article.last_reviewed && <Badge>Reviewed {date(article.last_reviewed)}</Badge>}
-      </div>
-      <div className="prose-remi text-body"><ReactMarkdown>{article.body}</ReactMarkdown></div>
-      <Note className="mt-8">General information written by Team Git Push Pray for this sandbox. Not financial, legal or tax advice.</Note>
-    </div>
-  );
-}
-

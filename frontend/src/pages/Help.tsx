@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, BookOpen, Search } from "lucide-react";
-import { ArticleBody } from "../app/Overlays";
+import { ArticleBody } from "../app/ArticleSheet";
 import { api } from "../lib/api";
 import { useApi, useStore } from "../lib/store";
 import { Badge, Button, Card, EmptyState, ErrorState, Input, ListRow, PageHeader, RowIcon, Skeleton, SkeletonRows, useTitleRef } from "../ui";

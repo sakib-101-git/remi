@@ -150,7 +150,7 @@ function ProfileMenu() {
   };
   return (
     <div className="relative" ref={ref}>
-      <button data-testid="persona-switcher" onClick={() => setOpen((v) => !v)} aria-label="Profile and demo personas" className="ml-1 grid h-10 w-10 place-items-center rounded-full bg-primary text-small font-semibold text-on-primary">
+      <button data-testid="persona-switcher" onClick={() => setOpen((v) => !v)} aria-label={`${initials(session.user.name)}, profile menu`} className="ml-1 grid h-10 w-10 place-items-center rounded-full bg-primary text-small font-semibold text-on-primary">
         {initials(session.user.name)}
       </button>
       {open && (
@@ -171,7 +171,7 @@ function ProfileMenu() {
           <MenuItem icon={<LogOut className="h-4 w-4" />} onClick={() => { setOpen(false); navigate("landing"); }}>Back to the home page</MenuItem>
         </div>
       )}
-      <Dialog open={about} onClose={() => setAbout(false)}>
+      <Dialog open={about} onClose={() => setAbout(false)} label="About this demo">
         <Wordmark height={28} />
         <h2 className="mt-6 text-h2">About this demo</h2>
         <p className="mt-2 text-body text-ink-muted">Remi is a sandbox built for FinTechathon 2026 (Topic C) by Team Git Push Pray. All people, banks, providers, universities and money are fictional. Nothing here is financial, legal or tax advice.</p>
@@ -191,7 +191,7 @@ function MenuItem({ icon, children, onClick }: { icon: ReactNode; children: Reac
 }
 
 function BottomTabs() {
-  const { route, navigate, setChatOpen } = useStore();
+  const { route, navigate, setChatOpen, setDemoOpen } = useStore();
   const [more, setMore] = useState(false);
   const tab = (r: Route, label: string, Icon: typeof Home) => (
     <button key={r} data-testid={`tab-${r}`} onClick={() => navigate(r)} className={cx("flex flex-1 flex-col items-center gap-1 pt-2 text-caption", route === r ? "text-primary" : "text-ink-muted")} aria-current={route === r ? "page" : undefined}>
@@ -218,6 +218,9 @@ function BottomTabs() {
       <Sheet open={more} onClose={() => setMore(false)} title="More">
         <div className="flex flex-col gap-1 p-4">
           {[MAIN[2], MAIN[4], ...SECONDARY].map((n) => <NavLink key={n.route} item={n} active={route === n.route} onClick={() => { setMore(false); navigate(n.route); }} />)}
+          <button data-testid="more-demo" onClick={() => { setMore(false); setDemoOpen(true); }} className="mt-4 flex h-12 items-center gap-3 rounded-full px-4 text-body text-ink-muted hover:bg-surface-muted">
+            <span className="h-2.5 w-2.5 rounded-full bg-accent" /> Demo controls
+          </button>
         </div>
       </Sheet>
     </>
@@ -230,7 +233,7 @@ function DemoPill() {
     <button
       data-testid="nav-sandbox"
       onClick={() => setDemoOpen(true)}
-      className="fixed bottom-24 left-4 z-30 inline-flex h-9 items-center gap-2 rounded-full bg-ink px-4 text-caption text-on-primary transition-transform hover:-translate-y-0.5 lg:bottom-5 lg:left-5"
+      className="fixed bottom-5 left-5 z-30 hidden h-9 items-center gap-2 rounded-full bg-ink px-4 text-caption text-on-primary transition-transform hover:-translate-y-0.5 lg:inline-flex"
     >
       <span className="h-2 w-2 rounded-full bg-accent" /> Demo
     </button>

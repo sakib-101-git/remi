@@ -147,7 +147,7 @@ function AskBox() {
   return (
     <div className="min-w-0 rounded-card bg-surface p-4 text-ink">
       <form onSubmit={(e) => { e.preventDefault(); go(text); setText(""); }} className="flex items-center gap-2 rounded-full border border-line pl-5 pr-1.5 focus-within:border-primary">
-        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Ask Remi anything about your money" aria-label="Ask Remi" data-testid="home-ask" className="h-12 min-w-0 flex-1 bg-transparent text-body outline-none placeholder:text-ink-muted focus-visible:outline-none" />
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Ask Remi anything" aria-label="Ask Remi" data-testid="home-ask" className="h-12 min-w-0 flex-1 bg-transparent text-body outline-none placeholder:text-ink-muted focus-visible:outline-none" />
         <button type="submit" aria-label="Ask" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-on-primary"><ArrowUp className="h-5 w-5" /></button>
       </form>
       <div className="mt-3 flex flex-wrap gap-2">

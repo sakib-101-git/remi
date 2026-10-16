@@ -1,12 +1,15 @@
 import { lazy, Suspense } from "react";
-import { ChatPanel } from "./app/ChatPanel";
-import { ArticleSheet, DemoDrawer, Onboarding, PhoneNotice, ToastHost } from "./app/Overlays";
+import { DemoDrawer, Onboarding, PhoneNotice, ToastHost } from "./app/Overlays";
 import { Shell } from "./app/Shell";
 import { ChatProvider } from "./lib/chat";
 import { useStore } from "./lib/store";
 import Home from "./pages/Home";
-import Landing from "./pages/Landing";
 import { AppIcon, Button, Dots, Skeleton } from "./ui";
+
+// The landing page, chat and article viewer (with the Markdown renderer) load on demand, keeping first paint light.
+const Landing = lazy(() => import("./pages/Landing"));
+const ChatPanel = lazy(() => import("./app/ChatPanel").then((m) => ({ default: m.ChatPanel })));
+const ArticleSheet = lazy(() => import("./app/ArticleSheet").then((m) => ({ default: m.ArticleSheet })));
 
 const Send = lazy(() => import("./pages/Send"));
 const Wallets = lazy(() => import("./pages/Wallets"));
@@ -19,7 +22,7 @@ const Styleguide = lazy(() => import("./pages/Styleguide"));
 const PAGES = { home: Home, send: Send, wallets: Wallets, insights: Insights, credit: Credit, security: Security, help: Help, styleguide: Styleguide };
 
 export default function App() {
-  const { session, loading, error, refreshSession, route } = useStore();
+  const { session, loading, error, refreshSession, route, chatOpen, kbSlug } = useStore();
   if (loading && !session) {
     return (
       <div className="grid min-h-screen place-items-center">
@@ -36,7 +39,7 @@ export default function App() {
   }
   return (
     <ChatProvider>
-      {route === "landing" ? <Landing /> : (
+      {route === "landing" ? <Suspense fallback={null}><Landing /></Suspense> : (
         <Shell>
           <Suspense fallback={<Skeleton className="h-96" />}>
             <Page />
@@ -44,9 +47,9 @@ export default function App() {
           <Onboarding />
         </Shell>
       )}
-      <ChatPanel />
+      {chatOpen && <Suspense fallback={null}><ChatPanel /></Suspense>}
       <DemoDrawer />
-      <ArticleSheet />
+      {kbSlug && <Suspense fallback={null}><ArticleSheet /></Suspense>}
       <PhoneNotice />
       <ToastHost />
     </ChatProvider>

@@ -16,6 +16,8 @@ body {
 svg.lucide { stroke-width: 1.75; flex-shrink: 0; }
 
 :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; border-radius: 6px; }
+/* Text fields show focus with their border instead of an outline. */
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; }
 button, a { -webkit-tap-highlight-color: transparent; }
 ::selection { background: var(--color-primary-soft); }
 

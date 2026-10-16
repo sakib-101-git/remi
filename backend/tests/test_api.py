@@ -131,3 +131,14 @@ def test_sandbox_controls(client):
     doc = client.post("/api/sandbox/inject-invoice").json()
     events = chat(client, "Is this invoice legit?", attachment_text=doc["document_text"])
     assert any(e == "cards" and any(c["type"] == "fraud" for c in d["cards"]) for e, d in events)
+
+
+def test_frontend_assets_are_gzipped_but_api_is_not(client):
+    from app.config import FRONTEND_DIST
+
+    if not (FRONTEND_DIST / "index.html").is_file():
+        return
+    page = client.get("/", headers={"Accept-Encoding": "gzip"})
+    assert page.headers.get("content-encoding") == "gzip"
+    api_resp = client.get("/api/health", headers={"Accept-Encoding": "gzip"})
+    assert api_resp.headers.get("content-encoding") is None

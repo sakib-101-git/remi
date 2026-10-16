@@ -475,7 +475,7 @@ class MockAgent:
         if why:
             lines.append("It's the cheapest option that arrives in time. The other providers cost more or can't take this amount.")
         if tuition:
-            lines.append("I've added the purpose of payment (tuition) and your source of funds for you.")
+            lines.append("The purpose of payment (tuition) and your source of funds are already filled in.")
         lines.append("")
         if r.get("tier") == "T3":
             lines.append("Because this is a large or unusual payment, it needs an extra check: approve the card, then enter the one-time code we send to your phone.")

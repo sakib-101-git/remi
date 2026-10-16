@@ -36,6 +36,7 @@ export function Sheet({
       <aside
         role="dialog"
         aria-modal="true"
+        aria-label={typeof title === "string" ? title : "Panel"}
         className={cx(
           "absolute inset-y-0 flex w-full animate-slide-in flex-col bg-surface shadow-float md:inset-y-3 md:rounded-card",
           side === "right" ? "right-0 md:right-3" : "left-0 md:left-3",
@@ -60,13 +61,13 @@ export function Sheet({
 }
 
 /** Centred dialog for short, blocking decisions (consent, limit change). */
-export function Dialog({ open, onClose, children, testId, dismissable = true }: { open: boolean; onClose: () => void; children: ReactNode; testId?: string; dismissable?: boolean }) {
+export function Dialog({ open, onClose, children, testId, dismissable = true, label = "Dialog" }: { open: boolean; onClose: () => void; children: ReactNode; testId?: string; dismissable?: boolean; label?: string }) {
   useEscape(open && dismissable, onClose);
   if (!open) return null;
   return createPortal(
     <div className="fixed inset-0 z-50 grid place-items-center p-4" data-testid={testId}>
       <div className="absolute inset-0 animate-fade-in bg-scrim" onClick={dismissable ? onClose : undefined} />
-      <div role="dialog" aria-modal="true" className="relative max-h-[92vh] w-full max-w-[520px] animate-rise overflow-y-auto rounded-card bg-surface p-8 shadow-float">
+      <div role="dialog" aria-modal="true" aria-label={label} className="relative max-h-[92vh] w-full max-w-[520px] animate-rise overflow-y-auto rounded-card bg-surface p-8 shadow-float">
         {children}
       </div>
     </div>,

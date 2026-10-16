@@ -11,6 +11,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+from starlette.middleware.gzip import GZipMiddleware
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from . import events
 from .api.limiter import limiter
@@ -69,7 +71,22 @@ async def lifespan(app: FastAPI):  # type: ignore[no-untyped-def]
 
 app = FastAPI(title="Remi API", version="1.0.0", lifespan=lifespan, docs_url="/api/docs", openapi_url="/api/openapi.json")
 app.state.limiter = limiter
+class StaticGZip:
+    """Compress the built frontend (HTML/JS/CSS). API responses and SSE streams pass through untouched."""
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+        self.gzip = GZipMiddleware(app, minimum_size=1024)
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] == "http" and not scope["path"].startswith("/api/"):
+            await self.gzip(scope, receive, send)
+        else:
+            await self.app(scope, receive, send)
+
+
 app.add_middleware(SlowAPIMiddleware)
+app.add_middleware(StaticGZip)
 app.include_router(router)
 
 
@@ -80,10 +97,13 @@ async def security_headers(request: Request, call_next: Any) -> Any:
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
     response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    if request.url.path.startswith("/assets/"):
+        # Vite file names are content-hashed, so they can be cached forever.
+        response.headers.setdefault("Cache-Control", "public, max-age=31536000, immutable")
     if not request.url.path.startswith("/api/docs"):
         response.headers.setdefault(
             "Content-Security-Policy",
-            "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; frame-ancestors 'self' https://*.hf.space https://huggingface.co",
+            "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self' https://*.hf.space https://huggingface.co",
         )
     return response
 

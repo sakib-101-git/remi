@@ -164,7 +164,7 @@ export function ChatPanel() {
             maxLength={2000}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(input); } }}
-            placeholder="Ask Remi to pay, send or explain…"
+            placeholder="Ask Remi anything"
             aria-label="Message Remi"
             className="max-h-40 min-h-11 flex-1 resize-none bg-transparent px-1 py-2.5 text-body outline-none placeholder:text-ink-muted focus-visible:outline-none"
           />
@@ -186,7 +186,7 @@ function AttachDialog({ open, onClose, onAttach }: { open: boolean; onClose: () 
     else setText((await api.get<any[]>("/invoices"))[0]?.raw_text ?? "");
   };
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} label="Attach a document">
       <h2 className="text-h2">Attach a document</h2>
       <p className="mt-2 text-small text-ink-muted">Paste an invoice or email. Remi checks it for fraud before reading it, and never follows instructions written inside it.</p>
       <div className="mt-4 flex flex-wrap gap-2">

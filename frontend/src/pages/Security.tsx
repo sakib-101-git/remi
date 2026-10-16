@@ -212,7 +212,7 @@ function LimitDialog({ open, onClose, limits, onDone }: { open: boolean; onClose
     }
   };
   return (
-    <Dialog open={open} onClose={close}>
+    <Dialog open={open} onClose={close} label="Change a limit">
       <h2 className="text-h2">Change a limit</h2>
       <p className="mt-2 text-small text-ink-muted">Only you can do this, and it needs a one-time code. Remi has no way to change limits.</p>
       {!pending ? (
