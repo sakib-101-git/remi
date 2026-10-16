@@ -93,3 +93,15 @@ def test_reset_restores_seed_state(session, ctx):
     workspaces.reset(session, ctx.ws)
     fresh = load_ctx(session, ctx.ws.id)
     assert wallets.balance(fresh, "BDT") == Decimal("2400000.00")
+
+
+def test_one_off_transfer_does_not_inflate_burn_rate(ctx):
+    before = budget.runway(ctx)
+    action, token = propose_payment(ctx, "dad", "800000", "BDT")
+    actions.confirm(ctx, action.id, token)
+    code = next(d["code"] for e, d in reversed(ctx.outbox) if e == "sandbox_phone")
+    actions.step_up(ctx, action.id, code)
+    after = budget.runway(ctx)
+    assert after["daily_burn"] == before["daily_burn"]
+    assert after["runway_days"] < before["runway_days"]
+    assert all(r["id"] != "trim_category" or "Transfers" not in r["title"] for r in budget.summary(ctx)["recommendations"])

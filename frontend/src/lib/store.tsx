@@ -92,15 +92,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [refreshSession]);
 
   useEffect(() => {
-    const onHash = () => setRoute(routeFromHash());
+    const onHash = () => {
+      setRoute(routeFromHash());
+      setKbSlug(null);
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
   const pushToast = useCallback((t: Omit<Toast, "id">) => {
     const id = toastId.current++;
-    setToasts((prev) => [...prev.slice(-4), { ...t, id }]);
-    window.setTimeout(() => setToasts((prev) => prev.filter((x) => x.id !== id)), t.kind === "fraud" || t.kind === "rate_alert" ? 12000 : 7000);
+    setToasts((prev) => [...prev.slice(-2), { ...t, id }]);
+    window.setTimeout(() => setToasts((prev) => prev.filter((x) => x.id !== id)), t.kind === "fraud" || t.kind === "rate_alert" ? 9000 : 4500);
   }, []);
 
   // Live events: settlement updates, alerts, OTP on the sandbox phone, notifications.
@@ -148,6 +151,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const navigate = useCallback((r: Route) => {
     window.location.hash = `/${r}`;
     setRoute(r);
+    setKbSlug(null);
   }, []);
 
   const value = useMemo<Store>(

@@ -138,10 +138,10 @@ export function SandboxPhone() {
   const { phone, phoneOpen, setPhoneOpen } = useStore();
   if (!phoneOpen) return null;
   return (
-    <div data-testid="sandbox-phone" className="fixed bottom-4 right-4 z-50 w-[290px] animate-slide-up">
+    <div data-testid="sandbox-phone" className="fixed bottom-4 left-4 z-50 w-[270px] animate-slide-up">
       <div className="rounded-[2.2rem] border-[6px] border-slate-900 bg-slate-950 p-2 shadow-2xl dark:border-slate-700">
         <div className="mx-auto mb-2 h-1.5 w-16 rounded-full bg-slate-800" />
-        <div className="h-[340px] overflow-y-auto rounded-[1.6rem] bg-gradient-to-b from-slate-100 to-slate-200 p-3 text-slate-900 dark:from-slate-800 dark:to-slate-900 dark:text-slate-100">
+        <div className="h-[300px] overflow-y-auto rounded-[1.6rem] bg-gradient-to-b from-slate-100 to-slate-200 p-3 text-slate-900 dark:from-slate-800 dark:to-slate-900 dark:text-slate-100">
           <div className="mb-3 flex items-center justify-between text-[11px] font-medium">
             <span>Sandbox phone</span>
             <button onClick={() => setPhoneOpen(false)} className="rounded-full bg-black/10 p-1 dark:bg-white/10" aria-label="Close phone"><X className="h-3 w-3" /></button>
@@ -190,7 +190,7 @@ const TOAST_ICON: Record<string, any> = { fraud: FileWarning, rate_alert: BellRi
 export function Toasts() {
   const { toasts, dismissToast, navigate } = useStore();
   return (
-    <div className="pointer-events-none fixed left-1/2 top-20 z-50 flex w-full max-w-md -translate-x-1/2 flex-col gap-2 px-4">
+    <div className="pointer-events-none fixed right-0 top-20 z-50 flex w-full max-w-sm flex-col gap-2 px-4">
       {toasts.map((t) => {
         const Icon = TOAST_ICON[t.kind] ?? BellRing;
         const danger = t.kind === "fraud" || t.kind === "blocked";

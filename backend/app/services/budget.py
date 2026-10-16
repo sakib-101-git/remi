@@ -1,7 +1,8 @@
 """Multi-currency budget, burn rate and runway.
 
 normalised_amount = amount × rate(txn_ccy → reporting_ccy, txn_date)
-daily_burn        = Σ normalised spend over trailing 60 days / 60
+daily_burn        = Σ normalised everyday spend (card payments) over trailing 60 days / 60
+                    (one-off transfers are excluded: they already reduced the liquid balance)
 runway_days       = (liquid balances − upcoming one-off obligations) / daily_burn
 """
 from __future__ import annotations
@@ -46,12 +47,13 @@ def _normalise(t: Transaction, reporting: str) -> Decimal:
     return t.amount * fx.historical_rate(t.currency, reporting, aware(t.occurred_at).date())
 
 
-def _spend_rows(ctx: Ctx, since: date) -> list[Transaction]:
+def _spend_rows(ctx: Ctx, since: date, include_transfers: bool = True) -> list[Transaction]:
+    kinds = SPEND_KINDS if include_transfers else ("card_spend",)
     rows = ctx.session.exec(
         select(Transaction).where(
             Transaction.workspace_id == ctx.ws_id,
             Transaction.user_id == ctx.user.id,
-            col(Transaction.kind).in_(SPEND_KINDS),
+            col(Transaction.kind).in_(kinds),
             col(Transaction.status).not_in(("failed", "reversed")),
         )
     ).all()
@@ -115,7 +117,7 @@ def obligations(ctx: Ctx, within_days: int = 90) -> list[dict[str, Any]]:
 def runway(ctx: Ctx) -> dict[str, Any]:
     reporting = ctx.user.reporting_currency
     start = today(ctx.ws)
-    spend = _spend_rows(ctx, start - timedelta(days=BURN_WINDOW_DAYS))
+    spend = _spend_rows(ctx, start - timedelta(days=BURN_WINDOW_DAYS), include_transfers=False)
     total = sum((_normalise(t, reporting) for t in spend), Decimal("0"))
     daily_burn = total / BURN_WINDOW_DAYS if total else Decimal("0")
     summary = wallets.summary(ctx)
@@ -134,7 +136,7 @@ def runway(ctx: Ctx) -> dict[str, Any]:
         "monthly_burn": str(q_money(daily_burn * 30, reporting)),
         "runway_days": days,
         "runway_until": (start + timedelta(days=days)).isoformat(),
-        "formula": "runway_days = (liquid balances − upcoming one-off obligations) / trailing-60-day daily burn",
+        "formula": "runway_days = (liquid balances − upcoming one-off obligations) / trailing-60-day daily burn (everyday spending)",
         "excludes": "Future income (e.g. family support, salary) is not counted - this is a conservative runway.",
         "data_timestamp": start.isoformat(),
     }
@@ -196,7 +198,7 @@ def recommendations(ctx: Ctx, categories: list[dict[str, Any]], subs: list[dict[
             return 0
         return int(available / new_burn) - int(available / burn)
 
-    growing = [c for c in categories if c["change_pct"] is not None and D(c["change_pct"]) >= 15 and c["category"] not in ("Rent", "Tuition")]
+    growing = [c for c in categories if c["change_pct"] is not None and D(c["change_pct"]) >= 15 and c["category"] not in ("Rent", "Tuition", "Transfers")]
     if growing:
         c = max(growing, key=lambda x: D(x["change_pct"]))
         target = q_money(D(c["previous_30_days"]), reporting)

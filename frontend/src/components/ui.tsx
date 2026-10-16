@@ -120,7 +120,7 @@ export function Modal({ open, onClose, children, title, wide }: { open: boolean;
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-4 backdrop-blur-sm animate-fade-in" onClick={onClose}>
-      <div className={cx("panel w-full animate-slide-up rounded-2xl p-6 shadow-2xl", wide ? "max-w-2xl" : "max-w-md")} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+      <div className={cx("panel scrollbar-thin max-h-[92vh] w-full animate-slide-up overflow-y-auto rounded-2xl p-6 shadow-2xl", wide ? "max-w-2xl" : "max-w-md")} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
         {title && (
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-display text-lg font-semibold">{title}</h2>

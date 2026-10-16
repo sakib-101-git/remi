@@ -26,7 +26,7 @@ export function QuotesCard({ data }: { data: any }) {
           <span className="font-display text-sm font-semibold">{rows.length} providers compared</span>
           <Badge tone="neutral">{data.mode === "reverse" ? "reverse quote · exact amount arrives" : "forward quote"}</Badge>
         </div>
-        <span className="text-muted hidden text-xs sm:block">mid {best?.mid_display ?? rows[0].mid_display}</span>
+        {rows[0].send_currency !== rows[0].receive_currency && <span className="text-muted hidden text-xs sm:block">mid-market {best?.mid_display ?? rows[0].mid_display}</span>}
       </div>
       <div className="divide-y divide-[var(--border)]">
         {rows.map((q) => {
@@ -40,11 +40,11 @@ export function QuotesCard({ data }: { data: any }) {
                     <span className="text-sm font-medium">{q.provider_name}</span>
                     {isBest && <Badge tone="brand"><Award className="h-3 w-3" /> Recommended</Badge>}
                     {!q.feasible && <Badge tone="danger"><Ban className="h-3 w-3" /> Not eligible</Badge>}
-                    {q.provider_id === lowestFee.provider_id && !isBest && <Badge tone="warning">lowest fee ≠ cheapest</Badge>}
+                    {q.provider_id === lowestFee.provider_id && !isBest && best && Number(q.landed_cost) > Number(best.landed_cost) && <Badge tone="warning">lowest fee ≠ cheapest</Badge>}
                   </div>
                   <div className="text-muted mt-0.5 flex flex-wrap items-center gap-x-3 text-xs">
                     <span>send <b className="num text-[var(--text)]">{money(q.send_amount, q.send_currency)}</b></span>
-                    <span>{q.rate_display}</span>
+                    {q.send_currency !== q.receive_currency && <span>{q.rate_display}</span>}
                     <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> by {date(q.arrival_latest)}</span>
                   </div>
                 </div>
