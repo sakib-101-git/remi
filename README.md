@@ -11,6 +11,8 @@ Remi plans and **executes** cross-border payments, manages multi-currency wallet
 **Live demo:** <https://remi-pzqb.onrender.com> (free hosting: the first visit after a quiet spell takes about a minute to wake up) · **Source:** <https://github.com/sakib-101-git/remi>
 
 > ⚠️ **Sandbox demo.** No real money and no real bank, remittance or KYC integrations. All banks, providers and universities are fictional. Not financial, legal or tax advice.
+>
+> **Sandbox by design.** The competition rules ask non-on-chain topics for *simulated-account/sandbox operation logs* as execution evidence. Remi's AI, decision logic, approvals and audit trail are real and run live; only the money, accounts and providers are simulated.
 
 ![Remi landing page](evidence/screenshots/01_landing.png)
 
@@ -166,6 +168,13 @@ Total cost: **$0**. Licences of all dependencies: [`THIRD_PARTY_LICENSES.md`](TH
 |---|---|---|
 | **Syed Nazmus Sakib** (Leader) | East Delta University | Agent, backend, security |
 | **Sadmanul Arefin** | Ahsanullah University of Science & Technology | Frontend, knowledge base, documentation |
+
+## Roadmap
+
+* Licensed remittance and tuition-payment partners in place of the sandbox providers, plus open-banking account data.
+* Real daily reference exchange rates (for example the ECB's) with the sandbox snapshot as fallback.
+* Real identity checks (KYC/AML), sanctions screening and passkeys or a real second factor for the extra check.
+* Proof-of-funds monitor, deadline calendar, invoice OCR, replies in the student's own language, and a companion app for family senders.
 
 ## License
 

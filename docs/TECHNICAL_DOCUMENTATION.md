@@ -375,7 +375,7 @@ A multi-stage Dockerfile (Node build → Python slim) reads `PORT`, exposes a he
 
 # 12. Limitations and roadmap
 
-* **Sandbox only.** No real providers, KYC, sanctions screening or banking rails. Production would integrate licensed remittance partners, open-banking account information and payment initiation, real KYC/AML vendors and certified rate feeds.
+* **Sandbox only.** No real providers, KYC, sanctions screening or banking rails. Production would integrate licensed remittance partners, open-banking account information and payment initiation, real KYC/AML vendors and certified rate feeds. A first step that keeps money fictional: daily ECB reference rates feeding the FX module, with the sandbox snapshot as automatic fallback and tests pinned to the snapshot.
 * **Illustrative compliance.** Corridor rules, purpose codes and credit plans are simplified, need legal review per jurisdiction, and need regular content review (the `last_reviewed` field).
 * **Free models.** Weaker reasoning and rate limits, mitigated by deterministic maths and security, the fallback chain and the replay cache. Production would use a no-retention enterprise tier or a self-hosted model.
 * **SQLite and simulated OTP.** Production would use PostgreSQL with row-level security, a KMS-managed secret, WebAuthn/passkeys for step-up, and an external write-once log store anchoring audit-chain heads.
