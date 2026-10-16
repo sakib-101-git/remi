@@ -224,7 +224,7 @@ class MockAgent:
                 args["recipient"] = recipient
             src = re.search(r"how much\s+([A-Za-z]{3}|taka|naira|rupees?)\b", text, re.I)
             if src:
-                args["from_currency"] = CCY_WORDS.get(src.group(1).lower(), src.group(1).upper())
+                args["send_currency"] = CCY_WORDS.get(src.group(1).lower(), src.group(1).upper())
             return _call("reverse_quote", args, n)
         r = done[0][2]
         best = r.get("recommended")

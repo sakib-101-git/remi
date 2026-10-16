@@ -148,3 +148,10 @@ def test_provider_extra_content_is_echoed_with_tool_calls(ctx, monkeypatch):
     call_msg = next(m for m in seen[-1] if m["role"] == "assistant" and m.get("tool_calls"))
     assert call_msg["tool_calls"][0]["extra_content"] == {"google": {"thought_signature": "sig"}}
     orchestrator.reset_chain()
+
+
+def test_reverse_quote_without_payee_defaults_to_home_wallet(ctx):
+    """'University must receive exactly £9,250 - how much BDT?' must not quote GBP->GBP when the model omits send_currency."""
+    res = tools.run_tool(ctx, "reverse_quote", {"target_amount": "9250", "target_currency": "GBP"}, allowed={"reverse_quote"})
+    best = res.data["recommended"]
+    assert best["send_currency"] == "BDT" and best["receive_amount"] == "9250.00"

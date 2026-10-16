@@ -29,6 +29,15 @@ def choose_source_currency(ctx: Ctx, beneficiary: Beneficiary, is_tuition: bool)
     return home or ctx.user.reporting_currency
 
 
+def default_send_currency(ctx: Ctx, receive_currency: str) -> str:
+    """Quote without a named payee: assume a cross-border transfer from home, unless home is where the money goes."""
+    owned = {w.currency for w in wallets.wallets(ctx)}
+    home = {"BD": "BDT", "NG": "NGN", "IN": "INR"}.get(ctx.user.home_country)
+    if home and home in owned and home != receive_currency:
+        return home
+    return ctx.user.reporting_currency
+
+
 def plan(
     ctx: Ctx,
     beneficiary: Beneficiary,

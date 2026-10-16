@@ -1,4 +1,36 @@
 {
+ "011a5dcb712ecc69109482637e5dbbfca9f754d9c15d17432401ae842adc2e17": {
+  "content": "",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-10-16T17:21:38Z",
+  "tool_calls": [
+   {
+    "arguments": "{\"goal\":\"cheapest\",\"amount\":\"10000\",\"receive_currency\":\"GBP\",\"amount_currency\":\"BDT\"}",
+    "extra": {
+     "google": {
+      "thought_signature": "EmAKXgFpFH0TRb9xPX2nBKbgdKuCfE4K2gGmsMukE95iJZn18EPqie+cQ5eF5//K6e3YaBEAH9PCMhLZtXsdRsgyz0CvPJeCZkaC8FHJGyQDMBBvk88/VXxa1OvlUSTqDHQ="
+     }
+    },
+    "id": "call_1469453",
+    "name": "get_remittance_quotes"
+   }
+  ]
+ },
+ "06f5b190497800ad8900257b1ec1c3b5d16cc9630ee535cb0331e09d50d95b5f": {
+  "content": "I cannot split payments to bypass provider limits. Alpha Remit and Beta Express both have per-transfer limits below 800,000 BDT ($\\approx \\$3,000$ and $\\$2,000$). \n\nInstead, I have routed your full 800,000 BDT transfer through **Sandbox Bank Wire**, which supports the full amount with a fee of 4,287.50 BDT and estimated arrival by October 21. Please review and confirm the proposal card below.",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-10-16T17:22:45Z",
+  "tool_calls": []
+ },
+ "0d5f90114458e2c394ee332c8792ef8f3ff22a5e41412750e9c4e88ba0a58d31": {
+  "content": "To have your university receive exactly \u00a39,250, you need to send **1,543,734.01 BDT** using Sandbox Bank Wire. \n\n* **Landed Cost:** 22,760.87 BDT (including fee and FX markup).\n* **Arrival:** By 2026-10-21.\n* **Alternatives:** Alpha Remit and Beta Express cannot be used because \u00a39,250 exceeds their per-transfer limits, and Campus Pay requires a pre-verified tuition recipient.",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-10-16T17:22:08Z",
+  "tool_calls": []
+ },
  "0fc10ab3d700b0e849ab1540f30d90bdb74cd76eb533b3d513f660cec36ecba2": {
   "content": "Alpha Remit has a per-transfer limit of $3,000 (approx. 367,000 BDT equivalent), so it cannot handle 800,000 BDT in a single transfer, and I cannot split payments to bypass limits. \n\nThe only available option that can process the full 800,000 BDT amount in one go is **Sandbox Bank Wire**, with a landed cost of 4,287.50 BDT, an effective cost of 0.54%, and arrival by October 21, 2026. Would you like me to propose this transfer using Sandbox Bank Wire?",
   "model": "gemini-3.5-flash-lite",
@@ -113,6 +145,24 @@
     },
     "id": "call_2892541",
     "name": "propose_payment"
+   }
+  ]
+ },
+ "295a0d9bb0c6c64e9d38a017483fcc7a4be9dac5ae4c9ee54eb7465947357460": {
+  "content": "",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-10-16T17:20:50Z",
+  "tool_calls": [
+   {
+    "arguments": "{\"amount_currency\":\"BDT\",\"goal\":\"cheapest\",\"receive_currency\":\"GBP\"}",
+    "extra": {
+     "google": {
+      "thought_signature": "EmAKXgFpFH0T5HQViNQTnXXFDgPU0veC1wubLHyxbYuhP2GAWyxxNJg1HcWFMn68TMrkcH6U9bs1AP3shSnp7S1hvw5KLpftXZVOTXPXoNlsBPJJUfqD8txjI/7bf8E9IC0="
+     }
+    },
+    "id": "call_1504484",
+    "name": "get_remittance_quotes"
    }
   ]
  },
@@ -243,6 +293,24 @@
    }
   ]
  },
+ "3d5a1054b7d044822860bc880c8395594886ce23017fd096c8b7a68816c45c9f": {
+  "content": "",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-10-16T17:20:58Z",
+  "tool_calls": [
+   {
+    "arguments": "{\"amount_currency\":\"BDT\",\"receive_currency\":\"GBP\",\"goal\":\"cheapest\",\"amount\":\"1000000\"}",
+    "extra": {
+     "google": {
+      "thought_signature": "EmAKXgFpFH0TareZBofKtd9NUjMPYYCLCC1ZG4joBbh6AtNRD5Vp47J/8tdIonX1/vrMOIkFFUyI2iH7pkyONDWGfFEMxeVV1TeNz0MTGclnqQDDx2OITee7fpj/t0OuFcw="
+     }
+    },
+    "id": "call_1237597",
+    "name": "get_remittance_quotes"
+   }
+  ]
+ },
  "481d007bcf47b0c39560ef2f0b8afc5580e3d0d6355974cd15b47e67e3b4cecc": {
   "content": "Your new payee **Oak Street Rooms (demo)** is currently in its cooling-off period until **2026-10-14 10:01 UTC** and cannot receive payments yet. \n\nOnce the cooling-off period ends, you have \u00a31,240.00 available in your GBP wallet to make this \u00a3300 payment. Please check back shortly to proceed.",
   "model": "gemini-3.5-flash-lite",
@@ -317,20 +385,38 @@
    }
   ]
  },
+ "5ab346b8cd3f0edec2fc50e2ac4619662e97e164065930ab8cc5771c5d7f0764": {
+  "content": "",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-10-16T17:20:42Z",
+  "tool_calls": [
+   {
+    "arguments": "{\"receive_currency\":\"GBP\",\"goal\":\"cheapest\",\"amount\":\"9250\",\"amount_currency\":\"GBP\"}",
+    "extra": {
+     "google": {
+      "thought_signature": "EmAKXgFpFH0TzwocQ0DOzzU8SY5cM5Kp8QlTIkYE6gd9DiZqpWSEkCvbE/Xjl5KpKVDhSGDDe3PZyRe1PVVtQXw1aN4/IoHsccvJ6CVOXcSp3W1Xya85XAIQlKbD+/8GYwU="
+     }
+    },
+    "id": "call_1678948",
+    "name": "get_remittance_quotes"
+   }
+  ]
+ },
  "5c7abe36bcd895c001d3b6941fcb9c45afb64673e087729114d5cd4dc7ef123c": {
   "content": "",
   "model": "gemini-3.5-flash-lite",
   "provider": "gemini",
-  "recorded_at": "2026-10-16T17:15:10Z",
+  "recorded_at": "2026-10-16T17:20:38Z",
   "tool_calls": [
    {
-    "arguments": "{\"target_currency\":\"GBP\",\"target_amount\":\"9250\"}",
+    "arguments": "{\"target_amount\":\"9250\",\"target_currency\":\"GBP\"}",
     "extra": {
      "google": {
-      "thought_signature": "EmAKXgFpFH0T3puvPdktKYwRHcUuU/Q/e9Z6yhgKCWPtaGzELjtAp31ROHwCyFqSCXu2oM6lsE+IUJCWDkPK9NJxbcz63St9vl7f26FpZFrrRMBiYOykYycTUyIFEgPfmmY="
+      "thought_signature": "EmAKXgFpFH0TOlmd1t+a116C8uMvk6Fm9N7MBIYa4eIum8QzOEvyZDUto7/UTwgj5/nshIRqgfCOP36iM+JhUQD/Rq7uBO2WiwDI0R9XUnbwa6Gol/GD/mcrYklgHq6weAY="
      }
     },
-    "id": "call_2835275",
+    "id": "call_1198153",
     "name": "reverse_quote"
    }
   ]
@@ -420,6 +506,24 @@
   "provider": "gemini",
   "recorded_at": "2026-10-16T17:12:13Z",
   "tool_calls": []
+ },
+ "75243b69efc5ec5826480dea39450f1d1b4e5aa7f10a0ee47d6b00a45b2b64a2": {
+  "content": "",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-10-16T17:21:49Z",
+  "tool_calls": [
+   {
+    "arguments": "{}",
+    "extra": {
+     "google": {
+      "thought_signature": "EmAKXgFpFH0Tmnd1MtKWdPeV1c2msYfS+mXYYfRq/GNKyBoAkT3Ty8EphqqrxVHvbUjIIE2Yu6eUJknEGnPoArVgr7pYE2xiEkCHZ5ntIZRu2ZsTj/eE1aFMn3Abr2kPCR8="
+     }
+    },
+    "id": "call_1361264",
+    "name": "get_wallets"
+   }
+  ]
  },
  "76fe62c7dfac4395afce50dfc272802017d1b8541573d46b9e30d296df09da5c": {
   "content": "",
@@ -558,6 +662,24 @@
   "recorded_at": "2026-10-16T17:15:43Z",
   "tool_calls": []
  },
+ "acb7a58efbcd28bda2024f8def0aea1871e720179cb08c714bd3a9cab541ce44": {
+  "content": "",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-10-16T17:22:40Z",
+  "tool_calls": [
+   {
+    "arguments": "{\"amount\":\"800000\",\"amount_currency\":\"BDT\",\"recipient\":\"dad\"}",
+    "extra": {
+     "google": {
+      "thought_signature": "EmAKXgFpFH0TSoqSw+sZOBnHWq0xMs9Or0BBxI9uSMW2p2V0IEFi05OoH/9FwGBzsds457Moo9LQncSwkZQ3u66dYhYqfInFGE/UaUjGdp/wMcftyzYrEIUHnxbYCPeZ50g="
+     }
+    },
+    "id": "call_1720767",
+    "name": "propose_payment"
+   }
+  ]
+ },
  "b2e86df406b3d05fc92b7f838840dbba7f63e433d5230d683b1816c81c3656f0": {
   "content": "",
   "model": "gemini-3.5-flash-lite",
@@ -576,21 +698,57 @@
    }
   ]
  },
- "b7e3c18a998eaa432bd79d272cdac71dcdd2017a4cfefd6818f0d2a46854ae28": {
-  "content": "I cannot split payments to bypass transaction limits or compliance rules. Let me check your transfer options and limits for sending 800,000 BDT to your dad.",
+ "b4a3e9e18b9c37d5091b3db1643a3d187cf2a387fcf23440073e3ed4f72761e3": {
+  "content": "",
   "model": "gemini-3.5-flash-lite",
   "provider": "gemini",
-  "recorded_at": "2026-10-16T17:16:01Z",
+  "recorded_at": "2026-10-16T17:22:28Z",
   "tool_calls": [
    {
-    "arguments": "{\"recipient\":\"dad\",\"amount\":\"800000\",\"amount_currency\":\"BDT\"}",
+    "arguments": "{\"receive_currency\":\"BDT\",\"amount_currency\":\"BDT\",\"amount\":\"800000\",\"recipient\":\"dad\"}",
     "extra": {
      "google": {
-      "thought_signature": "EmAKXgFpFH0Tpd04AoaU1XR1z55FMtbLeNQOJrlvxNIop/vk7Sp+3zp7xhW8vASlB6HUIsheghHORD229QrePSRGOqfb8uetf0d2yzuP7PUTXrRapHx196NM+xiMlOJ/E1M="
+      "thought_signature": "EmAKXgFpFH0Tsa40Y2Kt5vH0rs4YWZVXjF3Yob6B+gngBZMZr24BOEmZUGZo6z4oT1m5tV2cIKX1h1vKEkDyxdlnjWNwT9vxzPb7kLzkfLZp36oa38uSgHytS1LxRBNDLaI="
      }
     },
-    "id": "call_1537830",
+    "id": "call_1727267",
     "name": "get_remittance_quotes"
+   }
+  ]
+ },
+ "b695e0add3db9384eb85741e001359002beeac8e6d71ab650bade619b3b4e80d": {
+  "content": "",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-10-16T17:21:58Z",
+  "tool_calls": [
+   {
+    "arguments": "{\"amount_currency\":\"GBP\",\"from_currency\":\"BDT\",\"amount\":\"9250\",\"receive_currency\":\"GBP\",\"goal\":\"cheapest\"}",
+    "extra": {
+     "google": {
+      "thought_signature": "EmAKXgFpFH0TB/cOUNWmoRmbGJkZvH/ZRBxKJhwz+1ShRsHWEFif5pCHHlhZC/g+ql1YHui3QgMl5eNhJvN7yFqTHzc13Pus4GsYGVTEa6wZ0J58YWb/HE/TVD+rnaK4v7c="
+     }
+    },
+    "id": "call_3633613",
+    "name": "get_remittance_quotes"
+   }
+  ]
+ },
+ "b7e3c18a998eaa432bd79d272cdac71dcdd2017a4cfefd6818f0d2a46854ae28": {
+  "content": "",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-10-16T17:22:21Z",
+  "tool_calls": [
+   {
+    "arguments": "{}",
+    "extra": {
+     "google": {
+      "thought_signature": "EmAKXgFpFH0Ta7u4nZPsdy7bSSrRziDgJ18giKU6Mnv0UM6vwoiMBQzLsqKylMPCo61accnIzjtSQHYQSBwseia1kmuou4z7rB8NAmlW1LU9z4ZyxALdk/uJUsRjoftTehg="
+     }
+    },
+    "id": "call_511772",
+    "name": "list_beneficiaries"
    }
   ]
  },
@@ -607,6 +765,24 @@
   "provider": "gemini",
   "recorded_at": "2026-10-16T17:09:04Z",
   "tool_calls": []
+ },
+ "cdf02f1bde001b24167b9907df0e9179d74dff63bf76916bfc991851f4f4ab7a": {
+  "content": "",
+  "model": "gemini-3.5-flash-lite",
+  "provider": "gemini",
+  "recorded_at": "2026-10-16T17:21:29Z",
+  "tool_calls": [
+   {
+    "arguments": "{\"amount_currency\":\"BDT\",\"amount\":\"100000\",\"receive_currency\":\"GBP\",\"goal\":\"cheapest\"}",
+    "extra": {
+     "google": {
+      "thought_signature": "EmAKXgFpFH0TLf1BITIvSEGCGtOky+iBFsfQPfDqOVejUScxf2pvWEZLk4uHc7xvJeKUl9OcKZlAJ2CIWgHadXPjBXpJJ+gY9Yd0lDI0jM8SnCYMsepj5e+Zdh80KHGbCCE="
+     }
+    },
+    "id": "call_3980610",
+    "name": "get_remittance_quotes"
+   }
+  ]
  },
  "ce5010242f849c895433fe9bc50414147da0b7ec0100c27137313ef003869ee7": {
   "content": "",

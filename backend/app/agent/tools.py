@@ -128,8 +128,8 @@ class QuoteArgs(Money):
 class ReverseArgs(Money):
     target_amount: str = Field(..., description="Exact amount the recipient must receive")
     target_currency: str = Field(..., description="Currency the recipient receives")
+    send_currency: str | None = Field(None, description="Currency the user sends, e.g. 'how much BDT do I send' -> BDT. Omit only if not stated")
     recipient: str | None = Field(None, description="Saved recipient name/nickname, e.g. 'university'")
-    from_currency: str | None = Field(None, description="Currency/wallet the user sends from. Set it whenever the user names one (e.g. 'how much BDT' -> BDT)")
     deadline: str | None = Field(None, description="YYYY-MM-DD")
 
 
@@ -261,7 +261,9 @@ def _compare(ctx: Ctx, *, amount: Decimal, amount_ccy: str, recipient: str | Non
     else:
         if not receive_ccy:
             raise DomainError("Tell me who receives the money or the receiving currency")
-        recv, send, is_tuition, registry_ok = receive_ccy, from_ccy or ctx.user.reporting_currency, False, False
+        forward_send = amount_ccy if not reverse and amount_ccy != receive_ccy else None
+        recv, is_tuition, registry_ok = receive_ccy, False, False
+        send = from_ccy or forward_send or payments.default_send_currency(ctx, receive_ccy)
     if reverse or amount_ccy == recv and amount_ccy != send:
         kwargs: dict[str, Any] = {"receive_amount": amount}
     else:
@@ -288,7 +290,7 @@ def h_quotes(ctx: Ctx, a: QuoteArgs) -> ToolResult:
 
 def h_reverse(ctx: Ctx, a: ReverseArgs) -> ToolResult:
     amount, ccy = _dec(a.target_amount, "target_amount"), _ccy(a.target_currency)
-    return _compare(ctx, amount=amount, amount_ccy=ccy, recipient=a.recipient, receive_ccy=ccy, from_ccy=_ccy(a.from_currency), deadline=_deadline(a.deadline), goal="cheapest", reverse=True)
+    return _compare(ctx, amount=amount, amount_ccy=ccy, recipient=a.recipient, receive_ccy=ccy, from_ccy=_ccy(a.send_currency), deadline=_deadline(a.deadline), goal="cheapest", reverse=True)
 
 
 def h_fee(ctx: Ctx, a: FeeArgs) -> ToolResult:
