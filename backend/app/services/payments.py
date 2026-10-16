@@ -18,6 +18,12 @@ from . import compliance, quotes, wallets
 from .context import Ctx, DomainError
 
 
+def own_invoice(ctx: Ctx, invoice_id: str | None) -> Invoice | None:
+    """Invoice ids can come from the model or the replay cache: only this user's invoices in this workspace count."""
+    inv = ctx.session.get(Invoice, invoice_id) if invoice_id else None
+    return inv if inv and inv.workspace_id == ctx.ws_id and inv.user_id == ctx.user.id else None
+
+
 def choose_source_currency(ctx: Ctx, beneficiary: Beneficiary, is_tuition: bool) -> str:
     """Same-currency wallet first (no FX), else the home-currency wallet (tuition is typically funded from home)."""
     owned = {w.currency for w in wallets.wallets(ctx)}
@@ -61,9 +67,10 @@ def plan(
         raise DomainError(f"Amount currency {amount_currency} must be the sending ({send_ccy}) or receiving ({recv_ccy}) currency")
     reg = bene.registry_check(beneficiary)
     kwargs: dict[str, Any] = {"receive_amount": amount} if amount_currency == recv_ccy else {"send_amount": amount}
-    if deadline is None and invoice_id:
-        inv = ctx.session.get(Invoice, invoice_id)
-        deadline = inv.due_date if inv else None
+    invoice = own_invoice(ctx, invoice_id)
+    invoice_id = invoice.id if invoice else None
+    if deadline is None and invoice:
+        deadline = invoice.due_date
     comparison = quotes.compare(
         ctx.ws, send_ccy, recv_ccy, deadline=deadline, goal=goal, is_tuition=is_tuition,
         payee_is_registry=reg["applies"] and reg["match"], **kwargs,
@@ -87,9 +94,8 @@ def plan(
     rules_purpose = purpose_code or compliance.default_purpose(send_ccy, recv_ccy, is_tuition, beneficiary.kind)
     sof = source_of_funds or ("Family support" if ctx.user.home_country else "Personal savings")
     reference = None
-    if invoice_id:
-        inv = ctx.session.get(Invoice, invoice_id)
-        reference = inv.reference if inv else None
+    if invoice:
+        reference = invoice.reference
     payload = {
         "beneficiary_id": beneficiary.id,
         "beneficiary_name": beneficiary.name,
@@ -197,8 +203,8 @@ def execute(ctx: Ctx, payload: dict[str, Any], action_id: str) -> dict[str, Any]
         ],
     )
     if payload.get("invoice_id"):
-        inv = ctx.session.get(Invoice, payload["invoice_id"])
-        if inv and inv.workspace_id == ctx.ws_id:
+        inv = own_invoice(ctx, payload["invoice_id"])
+        if inv:
             inv.status = "paid"
             for ob in ctx.session.exec(select(Obligation).where(Obligation.invoice_id == inv.id)).all():
                 ob.status = "paid"

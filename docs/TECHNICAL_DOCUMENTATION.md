@@ -19,7 +19,7 @@ Remi follows the track theme, *AI as a Financial Participant*. The agent complet
 
 Remi runs at zero cost. The primary model is Google Gemini's free tier, with a fallback chain (Groq → OpenRouter free → local Ollama → deterministic mock agent) and a record/replay cache, so the live demo never depends on rate limits or venue Wi-Fi.
 
-**Results (sandbox):** 13/13 golden scenarios pass end to end through the real HTTP API on the deterministic agent (122/122 checks). 96 automated unit and API tests are green. Real-model results are in §10.
+**Results (sandbox):** 13/13 golden scenarios pass end to end through the real HTTP API on the deterministic agent (122/122 checks), on Google Gemini's free tier live (136/136 checks, no fallback allowed) and from the recorded replay cache (136/136). 103 automated unit and API tests and a Playwright browser test of S1 are green. Details in §10.
 
 # 2. Problem and target users
 
@@ -326,13 +326,19 @@ Signed per-visitor workspaces (isolation is tested), per-IP+workspace rate limit
 
 # 10. Testing and evaluation
 
-* **Unit/API tests.** 96 pytest tests: optimizer maths (forward, reverse, percentage fee, cut-off, ranking), Decimal rounding, ledger balance, limits, risk rules (structuring, history, corridor), tiering, confirmation-token binding/expiry/single-use/tamper, OTP attempts, cooling-off release, settlement lifecycle, audit-chain tamper detection (edit, delete, re-hash), redaction, injection detection, invoice fraud, workspace isolation, idempotency double-submit, governance step-up, kill switch, tool allowlist and schema validation, tool-call cap, RAG citations and poisoned-chunk sanitisation, replay-cache key stability.
+* **Unit/API tests.** 103 pytest tests: optimizer maths (forward, reverse, percentage fee, cut-off, ranking), Decimal rounding, ledger balance, limits, risk rules (structuring, history, corridor), tiering, confirmation-token binding/expiry/single-use/tamper, OTP attempts, cooling-off release, settlement lifecycle, audit-chain tamper detection (edit, delete, re-hash), redaction, injection detection, invoice fraud, workspace isolation, idempotency double-submit, governance step-up, kill switch, tool allowlist and schema validation, tool-call cap, RAG citations and poisoned-chunk sanitisation, replay-cache key stability, Gemini `thought_signature` passthrough, workspace-scoped invoice ids, `.env` parsing.
 * **Golden scenarios.** `evals/run_evals.py` drives S1–S13 through the real HTTP API and checks tools, cards, policy tier, status transitions, final balances, trial balance and audit-chain validity.
 
 | Run | Scenarios | Checks |
 |---|---|---|
 | Deterministic agent (`mock`) | **13/13** | **122/122** |
-| Gemini free tier | *to be filled in P4* | |
+| Gemini free tier, live (`gemini-3.5-flash-lite`) | **13/13** | **136/136** |
+| Gemini recorded replay (fresh workspaces) | **13/13** | **136/136** |
+
+In real-model runs an extra check fails any turn that silently fell back to the mock agent, so the Gemini result is genuinely the model's. The first live run passed 9/13. Each failure led to a deterministic fix rather than prompt-only patching: a Gemini 3 `thought_signature` passthrough, a home-currency default for payee-less quotes, rejecting rate alerts that would fire immediately, a "never shrink or split to fit a limit" hint in quote output, and a deterministic illustrative-content disclaimer. The full history is in `evidence/eval_report.md`. Median live turn latency on the free tier was ≈ 25 s (several tool calls per turn), which is why the public demo serves recorded answers first and goes live only on a cache miss.
+
+* **Browser end to end.** `frontend/e2e/s1_tuition.spec.ts` (Playwright) runs S1 through the real UI: consent → chat → quotes → confirmation card → executed → receipt → settled → audit chain verified. It runs locally against a fresh server and against the live deployment (`evidence/live_smoke_test.json`).
+* **Audit evidence.** `scripts/export_audit.py` exports one session's hash-chained audit log, then edits a row and shows verification failing at that entry (`evidence/audit_export.json`).
 
 Full per-scenario results: `evidence/eval_report.md`, `evidence/eval_results.json`, per-step logs in `evidence/sandbox_logs/`.
 
@@ -358,10 +364,10 @@ A multi-stage Dockerfile (Node build → Python slim) reads `PORT`, exposes a he
 
 # 13. Team
 
-| Member | University | Role |
-|---|---|---|
-| Syed Nazmus Sakib | East Delta University | Team leader |
-| Sadmanul Arefin | Ahsanullah University of Science & Technology | Member |
+| Member | University | Role | Responsibilities |
+|---|---|---|---|
+| Syed Nazmus Sakib | East Delta University | Team leader | Agent (LLM orchestration, tools, free-provider fallback), backend (FastAPI, sandbox ledger, optimizer, policy engine), security (permission tiers, confirmation tokens, risk engine, audit chain) |
+| Sadmanul Arefin | Ahsanullah University of Science & Technology | Member | Frontend (React UI, action cards, dashboards), knowledge base (curated articles, RAG content), documentation (technical documentation, guides, deck) |
 
 Repository: <https://github.com/sakib-101-git/remi> · License: MIT · Third-party licenses: `THIRD_PARTY_LICENSES.md`.
 

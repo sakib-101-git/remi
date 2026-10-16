@@ -7,7 +7,7 @@ export default defineConfig({
   testDir: "./e2e",
   timeout: 90_000,
   retries: 0,
-  reporter: [["list"], ["json", { outputFile: "../evidence/playwright_results.json" }]],
+  reporter: [["list"], ["json", { outputFile: process.env.E2E_REPORT ?? "../evidence/playwright_results.json" }]],
   use: { baseURL: external ?? `http://localhost:${PORT}`, viewport: { width: 1440, height: 900 }, trace: "retain-on-failure" },
   webServer: external
     ? undefined

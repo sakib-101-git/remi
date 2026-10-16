@@ -25,3 +25,4 @@ def test_pct_places():
 def test_rate_display_inverts_small_rates():
     assert rate_display("BDT", "GBP", Decimal("0.0060816")) == "1 GBP = 164.4304 BDT"
     assert rate_display("GBP", "BDT", Decimal("164.43")) == "1 GBP = 164.4300 BDT"
+

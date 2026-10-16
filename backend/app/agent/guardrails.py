@@ -69,6 +69,6 @@ def validate_output(text: str, executed_this_turn: bool, proposed_this_turn: boo
     """Never let the model claim money moved when nothing was executed."""
     if CLAIM_DONE.search(text) and not executed_this_turn:
         text = CLAIM_DONE.sub(lambda m: f"{m.group(1)} prepared", text)
-        if proposed_this_turn:
-            text += "\n\nNothing has moved yet - review the action card and confirm it if everything looks right."
+    if proposed_this_turn and not executed_this_turn and "Nothing has moved yet" not in text:
+        text = text.rstrip() + "\n\nNothing has moved yet - review the action card and confirm it if everything looks right."
     return text.strip()

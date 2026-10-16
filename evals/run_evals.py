@@ -338,6 +338,9 @@ def write_report(all_results: dict[str, Any]) -> None:
                     if not c["ok"]:
                         lines.append(f"- **{r['id']}** {c['check']}: `{c['detail'][:200]}`")
     lines += ["", "## How checks work", "", "Each scenario is executed through the real HTTP API (signed workspace cookie, SSE chat stream, confirm and step-up endpoints with idempotency keys, sandbox controls). Checks cover tools called, cards rendered, the policy tier chosen by the deterministic policy engine, action status transitions, the final ledger/wallet state, the double-entry trial balance and the audit hash chain. Per-step logs are in `evidence/sandbox_logs/`.", ""]
+    notes = Path(__file__).resolve().parent / "report_notes.md"
+    if notes.exists():
+        lines += ["", notes.read_text().strip(), ""]
     (EVIDENCE / "eval_report.md").write_text("\n".join(lines))
 
 

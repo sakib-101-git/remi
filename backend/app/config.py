@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import secrets
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -25,7 +26,14 @@ def _load_dotenv(path: Path) -> None:
         if not line or line.startswith("#") or "=" not in line:
             continue
         key, _, value = line.partition("=")
-        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+        os.environ.setdefault(key.strip(), _dotenv_value(value))
+
+
+def _dotenv_value(value: str) -> str:
+    value = value.strip()
+    if value[:1] in ('"', "'") and value.count(value[0]) >= 2:
+        return value[1 : value.index(value[0], 1)]
+    return re.split(r"\s+#", value, maxsplit=1)[0].strip()
 
 
 _load_dotenv(ROOT_DIR / ".env")

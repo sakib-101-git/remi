@@ -76,7 +76,7 @@ class OpenAICompatBackend:
         return self._client
 
     def chat(self, messages: list[dict[str, Any]], tools: list[dict[str, Any]]) -> ChatResult:
-        kwargs: dict[str, Any] = {"model": self.model, "messages": messages, "temperature": 0.2}
+        kwargs: dict[str, Any] = {"model": self.model, "messages": messages, "temperature": 0}
         if tools:
             kwargs["tools"] = tools
             kwargs["tool_choice"] = "auto"

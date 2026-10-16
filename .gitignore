@@ -39,3 +39,5 @@ frontend/playwright-report/
 .DS_Store
 frontend/*.tmp.mjs
 frontend/.e2e-data/
+evidence/demo_raw.webm
+evidence/*_failure.png

@@ -195,6 +195,9 @@ def run_turn(ctx: Ctx, text: str, *, attachment: str | None = None, emit: Emit |
         src = next((c for c in cards if c["type"] == "sources"), None)
         if src and src["data"]:
             final += "\n\nSources: " + " ".join(f"[KB: {s['title']}]" for s in src["data"][:2])
+    illustrative = any(s.get("illustrative") for c in cards if c["type"] == "sources" for s in c["data"])
+    if illustrative and not re.search(r"illustrative|verify|official", final, re.I):
+        final += "\n\n_Illustrative general information - verify with your university, bank and official sources._"
     cards = _source_chips(final, cards)
     return _finish(ctx, emit, final, cards, meta, started)
 

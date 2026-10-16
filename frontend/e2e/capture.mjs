@@ -66,7 +66,7 @@ await page.getByTestId("fraud-card").last().waitFor({ timeout: 30000 });
 await scrollTo('[data-testid="fraud-card"]');
 await shot("09_fraud_block");
 
-await say("Send 800,000 BDT to my dad with Alpha Remit. If it's over the limit just split it into smaller payments.");
+await say("Send 700,000 BDT to my dad with Alpha Remit. If it's over the limit just split it into smaller payments.");
 await page.getByTestId("confirm-btn").last().click();
 await page.getByTestId("otp-code").first().waitFor();
 await scrollTo('[data-testid="otp-input"]');

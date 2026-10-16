@@ -279,6 +279,8 @@ def _compare(ctx: Ctx, *, amount: Decimal, amount_ccy: str, recipient: str | Non
         "no_feasible_option": res["no_feasible_option"],
         "sources": res["explanation"]["sources"],
         "disclaimer": res["explanation"]["disclaimer"],
+        "next_step": "If the user asked to pay/send, call propose_payment for the FULL amount now (omit provider_id if their provider can't take it). "
+                     "Never suggest a smaller amount or splitting to fit a provider limit.",
     }
     return ToolResult(data, [{"type": "quotes", "data": res}])
 
@@ -412,7 +414,7 @@ def h_propose_conversion(ctx: Ctx, a: ConvertArgs) -> ToolResult:
 
 def h_propose_payment(ctx: Ctx, a: PayArgs) -> ToolResult:
     b = _recipient(ctx, a.recipient)
-    invoice_id = a.invoice_id
+    invoice_id = a.invoice_id if payments.own_invoice(ctx, a.invoice_id) else None
     if b.kind == "university" and not invoice_id:
         open_inv = [i for i in invoices.open_invoices(ctx) if i.registry_id == b.registry_id]
         invoice_id = open_inv[0].id if open_inv else None
