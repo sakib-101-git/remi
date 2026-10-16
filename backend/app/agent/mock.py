@@ -140,6 +140,8 @@ class MockAgent:
             return self._reverse(text, done, n)
         if re.search(r"credit (history|score|file|record|card)|build(ing)? (my )?credit|no credit", t):
             return self._credit(text, done, n)
+        if re.search(r"\b(set|create|make|add)\b.{0,20}\bbudget\b", t):
+            return self._create_budget(text, done, n)
         if re.search(r"how am i doing|budget|spending|spent|runway|how long .*last|money last|afford|insights?", t):
             return self._budget(done, n)
         if re.match(r"^\s*(what|which|why|where|who|how (do|does|can|should|is|are)|do i|does|is it|are there|can i|when should|explain|tell me about)\b", t):
@@ -281,6 +283,20 @@ class MockAgent:
             f"**Runway:** after setting aside {rw['reserved_for_obligations']} {ccy} for upcoming obligations, your money lasts about **{rw['runway_days']} days - until {rw['runway_until']}** at {rw['daily_burn']} {ccy}/day. {rw['excludes']}\n\n"
             f"Three things you could do:\n{recs}\n\n[KB: Understanding your runway]"
         )
+
+    def _create_budget(self, text: str, done: list, n: int) -> ChatResult:
+        if not done:
+            amounts = parse_amounts(text)
+            cat = re.search(r"\bfor\s+([a-z][a-z ]{2,20}?)(?:\s+(?:at|of|to)\b|[.,!?]|$)", text, re.I)
+            if not amounts or not cat:
+                return _say("Which category and what monthly limit? For example: set a budget of £120 for Eating out.")
+            amount, ccy = amounts[0]
+            args = {"category": cat.group(1).strip(), "monthly_limit": str(amount)}
+            if ccy:
+                args["currency"] = ccy
+            return _call("create_budget", args, n)
+        r = done[0][2]
+        return _say(f"Saved a monthly budget of **{r['monthly_limit']} {r['currency']}** for **{r['category']}**. I'll show progress on your Budget page" + (f" (previous limit was {r['undo']['previous_limit']})." if r.get("undo", {}).get("previous_limit") else ". You can change or remove it any time."))
 
     def _tuition(self, text: str, done: list, n: int) -> ChatResult:
         names = [d[0] for d in done]

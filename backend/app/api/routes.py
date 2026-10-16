@@ -141,6 +141,20 @@ def get_budget(request: Request, response: Response) -> dict[str, Any]:
         return budget.summary(ctx)
 
 
+class BudgetIn(BaseModel):
+    category: str = Field(..., max_length=40)
+    monthly_limit: str
+    currency: str | None = None
+
+
+@router.post("/budgets")
+def create_budget(body: BudgetIn, request: Request, response: Response) -> dict[str, Any]:
+    with uow(request, response) as ctx:
+        out = budget.create_budget(ctx, body.category, Decimal(body.monthly_limit), body.currency)
+        audit.append(ctx.session, ctx.ws_id, "user", "budget.saved", tier="T1", inputs=body.model_dump(), decision="ok")
+        return out
+
+
 @router.get("/credit")
 def get_credit(request: Request, response: Response) -> dict[str, Any]:
     with uow(request, response) as ctx:

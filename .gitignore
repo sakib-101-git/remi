@@ -36,3 +36,4 @@ frontend/playwright-report/
 .vscode/
 .idea/
 .DS_Store
+frontend/*.tmp.mjs

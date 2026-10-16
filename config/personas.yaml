@@ -48,7 +48,7 @@ personas:
     reporting_currency: CAD
     credit_config: ca
     student_id: "MCC-230118"
-    wallets: {NGN: "1200000.00", CAD: "3200.00", USD: "150.00"}
+    wallets: {NGN: "6500000.00", CAD: "3200.00", USD: "150.00"}
     monthly_income:
       - {description: "Part-time job (campus bookstore)", amount: "1400", currency: CAD, day: 15, category: "Salary"}
       - {description: "Family support (Okafor family)", amount: "400000", currency: NGN, day: 4, category: "Family support"}

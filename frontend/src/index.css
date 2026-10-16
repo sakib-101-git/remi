@@ -1,68 +1,79 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-brand-50: #ecfdfb;
+  --color-brand-100: #cff7f3;
+  --color-brand-200: #a0ece5;
+  --color-brand-300: #5fd9cf;
+  --color-brand-400: #26c0b6;
+  --color-brand-500: #0ea5a0;
+  --color-brand-600: #0b8582;
+  --color-brand-700: #0d6a69;
+  --color-brand-800: #105555;
+  --color-brand-900: #114747;
+  --color-ink: #0b1220;
+  --animate-fade-in: fade-in 0.25s ease-out;
+  --animate-slide-up: slide-up 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+}
+
+@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+@keyframes pulse-soft { 0%, 100% { opacity: 1 } 50% { opacity: 0.55 } }
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --bg: #f6f7fb;
+  --panel: #ffffff;
+  --panel-2: #f1f3f8;
+  --border: #e3e7ef;
+  --text: #0b1220;
+  --muted: #5b6577;
+  --ring: rgba(14, 165, 160, 0.35);
+  color-scheme: light;
+}
+.dark {
+  --bg: #0a0f1c;
+  --panel: #111827;
+  --panel-2: #0d1424;
+  --border: #1f2a3d;
+  --text: #e6eaf2;
+  --muted: #94a0b4;
+  --ring: rgba(38, 192, 182, 0.4);
+  color-scheme: dark;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+html, body, #root { height: 100%; }
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv11", "ss01";
 }
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
+.num { font-variant-numeric: tabular-nums; }
+.panel { background: var(--panel); border: 1px solid var(--border); }
+.panel-2 { background: var(--panel-2); }
+.border-soft { border-color: var(--border); }
+.text-muted { color: var(--muted); }
+.brand-gradient { background-image: linear-gradient(135deg, #0ea5a0 0%, #6366f1 100%); }
+.brand-text { background-image: linear-gradient(135deg, #0ea5a0, #6366f1); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.focus-ring:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+.prose-chat p { margin: 0.35rem 0; }
+.prose-chat ul, .prose-chat ol { margin: 0.35rem 0 0.35rem 1.1rem; }
+.prose-chat ul { list-style: disc; }
+.prose-chat ol { list-style: decimal; }
+.prose-chat li { margin: 0.15rem 0; }
+.prose-chat strong { font-weight: 600; }
+.prose-chat em { color: var(--muted); }
+.prose-kb h1 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; margin-bottom: .75rem; }
+.prose-kb h2 { font-family: var(--font-display); font-size: 1.02rem; font-weight: 600; margin: 1.1rem 0 .4rem; }
+.prose-kb p { margin: .45rem 0; line-height: 1.6; color: var(--text); }
+.prose-kb ul { list-style: disc; margin: .4rem 0 .4rem 1.2rem; }
+.prose-kb li { margin: .2rem 0; line-height: 1.55; }
