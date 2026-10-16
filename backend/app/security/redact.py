@@ -6,9 +6,9 @@ from typing import Any
 SECRET_KEYS = {"token", "confirm_token", "otp", "code", "secret", "api_key", "password", "token_hash", "otp_hash"}
 ACCOUNT_KEYS = {"account_number", "iban", "account"}
 
-_ACCOUNT_RE = re.compile(r"\b(?=[A-Z0-9]*\d)[A-Z]{0,4}\d[A-Z0-9]{8,30}\b")
+_ACCOUNT_RE = re.compile(r"\b[A-Z]{2}\d{2}[A-Z0-9]{8,30}\b")
 _EMAIL_RE = re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b")
-_PHONE_RE = re.compile(r"(?<!\w)\+?\d[\d ()-]{8,}\d\b")
+_PHONE_RE = re.compile(r"(?<!\w)\+\d[\d ()-]{8,}\d\b")
 
 
 def mask_account(value: str) -> str:

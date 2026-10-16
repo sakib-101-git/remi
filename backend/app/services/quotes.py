@@ -160,7 +160,9 @@ def quote_provider(
     send_ccy, recv_ccy = send_ccy.upper(), recv_ccy.upper()
     mid = q_rate(mid if mid is not None else fx.mid_rate(ws, send_ccy, recv_ccy))
     usd_to_send = fx.mid_rate(ws, "USD", send_ccy)
-    offered = q_rate(mid * (Decimal("1") - provider.markup))
+    # Same-currency payouts involve no conversion, so no FX markup applies.
+    markup = Decimal("0") if send_ccy == recv_ccy else provider.markup
+    offered = q_rate(mid * (Decimal("1") - markup))
     fixed_fee = provider.fee_fixed_usd * usd_to_send
 
     if receive_amount is not None:

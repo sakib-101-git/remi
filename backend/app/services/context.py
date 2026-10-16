@@ -19,6 +19,8 @@ class Ctx:
     ws: Workspace
     user: User
     outbox: list[tuple[str, dict[str, Any]]] = field(default_factory=list)
+    attachment: str | None = None
+    source_flags: list[str] | None = None
 
     @property
     def ws_id(self) -> str:

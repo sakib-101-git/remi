@@ -44,6 +44,8 @@ def q_pct(value: object, places: int = 2) -> Decimal:
 def rate_display(base: str, quote: str, rate: object) -> str:
     """Human-friendly rate: small rates are shown inverted (1 GBP = 164.43 BDT rather than 1 BDT = 0.0061 GBP)."""
     r = D(rate)
+    if base == quote:
+        return "No conversion (same currency)"
     if r == 0:
         return f"1 {base} = 0 {quote}"
     if r < 1:
@@ -54,3 +56,9 @@ def rate_display(base: str, quote: str, rate: object) -> str:
 def fmt(amount: object, currency: str) -> str:
     value = q_money(amount, currency)
     return f"{SYMBOLS.get(currency, '')}{value:,.{MINOR_UNITS.get(currency, 2)}f} {currency}".strip()
+
+
+def plain(value: object) -> str:
+    """Decimal without trailing zeros or exponent: 163.5000000000 -> '163.5'."""
+    d = D(value).normalize()
+    return f"{d:f}"

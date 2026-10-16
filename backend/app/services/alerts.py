@@ -6,7 +6,7 @@ from typing import Any
 from sqlmodel import select
 
 from ..models import RateAlert, Reminder
-from ..money import D, q_rate
+from ..money import D, plain, q_rate
 from ..sandbox import fx
 from ..sandbox.clock import now
 from .context import Ctx, DomainError
@@ -17,11 +17,11 @@ def to_dict(a: RateAlert) -> dict[str, Any]:
         "id": a.id,
         "pair": f"{a.base}/{a.quote}",
         "direction": a.direction,
-        "target_rate": str(a.target_rate),
+        "target_rate": plain(a.target_rate),
         "convert_amount": None if a.convert_amount is None else str(a.convert_amount),
         "convert_currency": a.convert_currency,
         "status": a.status,
-        "triggered_rate": None if a.triggered_rate is None else str(a.triggered_rate),
+        "triggered_rate": None if a.triggered_rate is None else plain(a.triggered_rate.quantize(Decimal("0.0001"))),
         "proposal_id": a.proposal_id,
     }
 
@@ -46,7 +46,7 @@ def set_alert(
     ctx.session.add(alert)
     ctx.session.flush()
     ctx.emit("alert", to_dict(alert))
-    return {"status": "saved", **to_dict(alert), "current_rate": str(current), "undo": {"cancel_alert_id": alert.id}}
+    return {"status": "saved", **to_dict(alert), "current_rate": plain(current.quantize(Decimal("0.0001"))), "undo": {"cancel_alert_id": alert.id}}
 
 
 def list_alerts(ctx: Ctx) -> list[dict[str, Any]]:
