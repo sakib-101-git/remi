@@ -103,7 +103,7 @@ Also: deterministic limits and an explainable risk engine (structuring, velocity
 
 * [Technical documentation](docs/TECHNICAL_DOCUMENTATION.md): architecture, agent design, algorithms with formulas, RAG, security, testing
 * [Security self-assessment](docs/SECURITY_SELF_ASSESSMENT.md): tier implementation with code references, STRIDE, control → test mapping, risk register
-* [Deployment guide](docs/DEPLOYMENT.md): Hugging Face Spaces, Render, Docker, quick tunnel
+* [Deployment guide](docs/DEPLOYMENT.md): Render (free, Docker), local Docker, quick tunnel
 * [Execution evidence](evidence/README.md): eval report, sandbox logs, audit export with tamper test, screenshots
 
 ![Architecture](docs/diagrams/architecture.png)
@@ -138,7 +138,7 @@ scripts/          start, dev, seed, deploy_hf, build_docs, package_submission, c
 | Frontend | React, Vite, TypeScript, Tailwind CSS, Recharts, lucide | Free, open source |
 | LLM | Gemini free tier → Groq free tier → OpenRouter `:free` → Ollama → mock | Free (no card) |
 | Embeddings | fastembed + BGE-small, running locally | Free |
-| Hosting | Hugging Face Spaces (Docker, CPU Basic) | Free |
+| Hosting | Render free web service (Docker) | Free |
 | Tests and tooling | pytest, Playwright, Mermaid CLI | Free |
 
 Total cost: **$0**. Licences of all dependencies: [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).

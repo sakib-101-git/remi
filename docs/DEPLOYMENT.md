@@ -4,10 +4,10 @@ Remi ships as one Docker image that serves the API and the built React app on a 
 
 | Option | When to use | Cost |
 |---|---|---|
-| **Hugging Face Spaces (Docker)** | Primary public demo | Free CPU Basic (2 vCPU, 16 GB RAM); sleeps after ~48 h without visitors |
-| Render free web service | Fallback host | Free instance; sleeps after ~15 min idle (cold start ~1 min) |
-| Local + Cloudflare quick tunnel | Last resort / venue without a host | Free, no account needed |
+| **Render free web service (Docker)** | Primary public demo | Free instance (512 MB RAM, shared CPU), no card; sleeps after ~15 min idle (cold start ~1 min) |
+| Local + Cloudflare quick tunnel | Backup during judging | Free, no account needed |
 | Local (`./scripts/start.sh` or `docker compose up`) | Development, offline demo | Free |
+| Hugging Face Spaces (Docker) | Only with an HF PRO subscription | Not free: as of October 2026, Docker/Gradio Spaces on CPU Basic require PRO (API answers 402), so it breaks our zero-cost rule. `scripts/deploy_hf.sh` is kept for teams that have PRO |
 
 Free-tier terms change; check the provider's pricing page before the event.
 
@@ -30,44 +30,33 @@ All settings are environment variables (see `.env.example` for the full list).
 
 **Never commit keys.** `.env` is gitignored. On hosts, keys go into the platform's secret settings.
 
-## 2. Hugging Face Spaces (primary)
+## 2. Render (primary)
 
-### One command
+The repository contains a [Render Blueprint](../render.yaml): one free Docker web service built from the same `Dockerfile`, with health check `/api/health` and a generated `SECRET_KEY`.
 
-```bash
-# .env contains HF_TOKEN (a *write* token from huggingface.co/settings/tokens) and the LLM keys
-./scripts/deploy_hf.sh            # deploys to <your-hf-user>/remi
-HF_SPACE=myname/remi-demo ./scripts/deploy_hf.sh   # custom Space name
-```
+1. Sign in at <https://dashboard.render.com> with GitHub (free, no card).
+2. **New → Blueprint** → select the `sakib-101-git/remi` repository → **Apply**.
+3. When prompted, paste `GEMINI_API_KEY` and `GROQ_API_KEY` (stored as Render secrets, never in the repo).
+4. The first build takes ~5–10 minutes (npm, pip and the embedding model baked into the image). The service URL looks like `https://remi-xxxx.onrender.com`.
 
-The script:
-1. creates a public **Docker Space** if it does not exist,
-2. stores `GEMINI_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY` and a random `SECRET_KEY` as **Space secrets** (never in the repo),
-3. pushes only the files the Docker build needs, plus a Space `README.md` header (`sdk: docker`, `app_port: 7860`). Screenshots and PDFs stay out because the Space git rejects binaries outside LFS,
-4. waits until the Space is `RUNNING` and `/api/health` answers, then prints the URL (`https://<user>-remi.hf.space`).
+Equivalent manual setup: **New → Web Service** → the repo → Runtime **Docker** → Instance type **Free** → Health check path `/api/health` → environment variables as above. Render injects `PORT`, and the image listens on it.
 
-### Manual steps (equivalent)
-
-1. huggingface.co → **New Space** → SDK **Docker** → Blank → Public.
-2. Space **Settings → Variables and secrets** → add secrets `GEMINI_API_KEY`, `GROQ_API_KEY`, `SECRET_KEY`.
-3. Push `Dockerfile`, `backend/`, `frontend/`, `config/`, `knowledge/`, `evals/replay_cache.json` and `scripts/build_kb.py`, with a `README.md` whose front-matter contains `sdk: docker` and `app_port: 7860`.
+Memory: the container peaks at ≈ 275 MB with local embeddings (≈ 80 MB with `KB_USE_EMBEDDINGS=false`), within the 512 MB free limit.
 
 ### What the image does
 
 * Stage 1 (`node:22-slim`) builds the frontend; stage 2 (`python:3.12-slim`) installs the backend.
 * The knowledge-base embedding model (BGE-small, local) and index are **baked in at build time**, so cold starts work offline.
-* Runs as uid 1000 on `$PORT` (7860) with a Docker `HEALTHCHECK` on `/api/health`.
-* SQLite lives in `/tmp/remi-data`. Free Space storage is **ephemeral**: a restart wipes it, and every visitor's workspace re-seeds automatically on the next visit.
+* Runs as uid 1000 on `$PORT` with a Docker `HEALTHCHECK` on `/api/health`.
+* SQLite lives in `/tmp/remi-data`. Free instances have **ephemeral** disks: a restart or redeploy wipes it, and every visitor's workspace re-seeds automatically on the next visit.
 
 ### Before judging (warm-up)
 
-Free Spaces sleep when idle. **Open the URL 5–10 minutes before the presentation** and click through the dashboard once. Check `https://<user>-remi.hf.space/api/health` → `{"status":"ok",...}`.
+Free instances sleep when idle. **Open the URL 5–10 minutes before the presentation** and click through the dashboard once. Check `<live-url>/api/health` → `{"status":"ok",...}`.
 
-## 3. Render (fallback)
+## 3. Hugging Face Spaces (requires PRO)
 
-1. render.com → New → **Web Service** → connect the GitHub repo → Runtime **Docker**, plan **Free**.
-2. Environment: `GEMINI_API_KEY`, `GROQ_API_KEY`, `SECRET_KEY` (Render injects `PORT`, which the image honours).
-3. Health check path: `/api/health`.
+`./scripts/deploy_hf.sh` creates a Docker Space, stores the LLM keys and a random `SECRET_KEY` as Space secrets, pushes only the build inputs (HF rejects binaries outside LFS) and waits for `/api/health`. It needs an HF **PRO** subscription for Docker Spaces; on a free account the API answers `402`.
 
 ## 4. Local, Docker and quick tunnel
 
@@ -85,9 +74,9 @@ cloudflared tunnel --url http://localhost:8000   # prints a https://<random>.try
 ## 5. Verifying a deployment
 
 ```bash
-curl -s https://<user>-remi.hf.space/api/health
+curl -s <live-url>/api/health
 # End-to-end S1 smoke test (Playwright, against any URL):
-cd frontend && E2E_BASE_URL=https://<user>-remi.hf.space E2E_REPORT=../evidence/live_smoke_test.json npx playwright test
+cd frontend && E2E_BASE_URL=<live-url> E2E_REPORT=../evidence/live_smoke_test.json npx playwright test
 ```
 
 The result of the smoke test against the live URL is saved in `evidence/live_smoke_test.json`.
@@ -99,5 +88,5 @@ The result of the smoke test against the live URL is saved in `evidence/live_smo
 | `localhost:8000` doesn't open | Use the URL in the "Remi is ready" banner. `start.sh` binds IPv4 and IPv6; `0.0.0.0` is a bind address, not a URL |
 | "Port 8000 is already in use" | Another Remi/dev server is running: stop it or `PORT=8080 ./scripts/start.sh` |
 | Badge shows `mock` / "demo mode" | No LLM key set, daily budget used up, or providers rate-limited. Replay answers still work for the demo scenarios |
-| Space stuck in `BUILDING` | First build takes ~5–10 min (npm + pip + embedding model). See the Space's **Logs** tab |
-| Visitors lose their sandbox | Expected after a Space restart (ephemeral storage); set `SECRET_KEY` so cookies stay valid |
+| Render build slow or service "starting" | The first build takes ~5–10 min (npm + pip + embedding model); after idle sleep the first request takes ~1 min. See the service **Logs** |
+| Visitors lose their sandbox | Expected after a restart or redeploy (ephemeral storage); the workspace re-seeds automatically |

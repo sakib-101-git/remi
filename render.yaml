@@ -1,0 +1,17 @@
+# Render Blueprint: one free Docker web service (https://render.com/docs/blueprint-spec).
+# Render injects PORT; the image listens on it. LLM keys are entered in the dashboard (sync: false), never committed.
+services:
+  - type: web
+    name: remi
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false

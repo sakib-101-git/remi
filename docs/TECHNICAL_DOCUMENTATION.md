@@ -354,7 +354,7 @@ Full per-scenario results: `evidence/eval_report.md`, `evidence/eval_results.jso
 | Embeddings | fastembed BGE-small, local CPU | $0 |
 | Backend | FastAPI + SQLite | $0 |
 | Frontend | React + Vite + Tailwind, served by FastAPI (one port) | $0 |
-| Hosting | Hugging Face Spaces (Docker, free CPU); fallback Render free; last resort Cloudflare quick tunnel | $0 |
+| Hosting | Render free web service (Docker, `render.yaml`); backup Cloudflare quick tunnel. Hugging Face Docker Spaces now require PRO, so they were dropped | $0 |
 
 A multi-stage Dockerfile (Node build → Python slim) reads `PORT`, exposes a health check, and builds the KB index and seed on startup. Free hosts may have ephemeral disks; per-visitor workspaces re-seed cleanly. See `docs/DEPLOYMENT.md`.
 
