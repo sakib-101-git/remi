@@ -1,0 +1,15 @@
+**/node_modules
+**/.venv
+**/__pycache__
+frontend/dist
+frontend/.e2e-data
+frontend/test-results
+data
+evidence
+docs
+deck
+submission
+.git
+.env
+*.pdf
+backend/app/knowledge/index
