@@ -17,7 +17,14 @@ export type Session = {
 };
 export type Toast = { id: number; kind: string; title: string; body?: string; data?: any };
 export type PhoneMessage = { id: number; action_id: string; code: string; message: string; expires_at: string; at: number };
-export type Route = "dashboard" | "chat" | "transfers" | "budget" | "credit" | "audit" | "settings" | "sandbox" | "knowledge";
+export type Route = "landing" | "home" | "send" | "wallets" | "insights" | "credit" | "security" | "help" | "styleguide";
+
+export const APP_ROUTES: Route[] = ["home", "send", "wallets", "insights", "credit", "security", "help", "styleguide"];
+// Old links (and bookmarks from the first UI) keep working.
+const LEGACY: Record<string, { route: Route; open?: "chat" | "demo" }> = {
+  dashboard: { route: "home" }, chat: { route: "home", open: "chat" }, transfers: { route: "send" }, budget: { route: "insights" },
+  audit: { route: "security" }, settings: { route: "security" }, knowledge: { route: "help" }, sandbox: { route: "home", open: "demo" },
+};
 
 type Store = {
   session: Session | null;
@@ -26,50 +33,65 @@ type Store = {
   refreshSession: () => Promise<void>;
   setSession: (s: Session) => void;
   route: Route;
-  navigate: (r: Route) => void;
+  param: string | null;
+  navigate: (r: Route, param?: string | null) => void;
   version: number;
   bump: () => void;
-  toasts: Toast[];
+  toast: Toast | null;
   pushToast: (t: Omit<Toast, "id">) => void;
-  dismissToast: (id: number) => void;
-  phone: PhoneMessage[];
-  phoneOpen: boolean;
-  setPhoneOpen: (v: boolean) => void;
+  dismissToast: () => void;
+  phone: PhoneMessage | null;
+  dismissPhone: () => void;
   kbSlug: string | null;
   openKb: (slug: string | null) => void;
+  chatOpen: boolean;
+  setChatOpen: (v: boolean) => void;
   chatDraft: { message: string; attachment?: string; autoSend?: boolean } | null;
   askRemi: (message: string, opts?: { attachment?: string; autoSend?: boolean }) => void;
   consumeDraft: () => void;
+  demoOpen: boolean;
+  setDemoOpen: (v: boolean) => void;
   liveEvents: { event: string; data: any; at: number }[];
+  unread: number;
+  clearUnread: () => void;
   tokenCards: Record<string, any>;
   connected: boolean;
-  theme: "light" | "dark";
-  toggleTheme: () => void;
+  titleVisible: boolean;
+  setTitleVisible: (v: boolean) => void;
 };
 
 const Ctx = createContext<Store | null>(null);
+const IMPORTANT_TOASTS = new Set(["fraud", "rate_alert", "blocked"]);
 
-function routeFromHash(): Route {
-  const h = window.location.hash.replace(/^#\/?/, "").split("?")[0] as Route;
-  return (["dashboard", "chat", "transfers", "budget", "credit", "audit", "settings", "sandbox", "knowledge"] as Route[]).includes(h) ? h : "dashboard";
+function parseHash(): { route: Route; param: string | null; open?: "chat" | "demo" } {
+  const [head, ...rest] = window.location.hash.replace(/^#\/?/, "").split("?")[0].split("/");
+  if (!head) return { route: "landing", param: null };
+  if (LEGACY[head]) return { ...LEGACY[head], param: null };
+  const route = (APP_ROUTES as string[]).includes(head) ? (head as Route) : "home";
+  return { route, param: rest.length ? decodeURIComponent(rest.join("/")) : null };
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
+  const initial = useRef(parseHash());
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [route, setRoute] = useState<Route>(routeFromHash());
+  const [route, setRoute] = useState<Route>(initial.current.route);
+  const [param, setParam] = useState<string | null>(initial.current.param);
   const [version, setVersion] = useState(0);
-  const [toasts, setToasts] = useState<Toast[]>([]);
-  const [phone, setPhone] = useState<PhoneMessage[]>([]);
-  const [phoneOpen, setPhoneOpen] = useState(false);
+  const [toast, setToast] = useState<Toast | null>(null);
+  const [phone, setPhone] = useState<PhoneMessage | null>(null);
   const [kbSlug, setKbSlug] = useState<string | null>(null);
+  const [chatOpen, setChatOpen] = useState(initial.current.open === "chat");
+  const [demoOpen, setDemoOpen] = useState(initial.current.open === "demo");
   const [chatDraft, setChatDraft] = useState<Store["chatDraft"]>(null);
   const [liveEvents, setLiveEvents] = useState<Store["liveEvents"]>([]);
+  const [unread, setUnread] = useState(0);
   const [tokenCards, setTokenCards] = useState<Record<string, any>>({});
   const [connected, setConnected] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">(document.documentElement.classList.contains("dark") ? "dark" : "light");
+  const [titleVisible, setTitleVisible] = useState(true);
   const toastId = useRef(1);
+  const toastTimer = useRef<number | null>(null);
   const bumpTimer = useRef<number | null>(null);
 
   const bump = useCallback(() => {
@@ -79,8 +101,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const refreshSession = useCallback(async () => {
     try {
-      const s = await api.get<Session>("/session");
-      setSession(s);
+      setSession(await api.get<Session>("/session"));
       setError(null);
     } catch (e: any) {
       setError(e.message || "Could not reach the Remi server");
@@ -95,20 +116,33 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const onHash = () => {
-      setRoute(routeFromHash());
-      setKbSlug(null);
+      const h = parseHash();
+      setRoute(h.route);
+      setParam(h.param);
+      if (h.open === "chat") setChatOpen(true);
+      if (h.open === "demo") setDemoOpen(true);
+      setTitleVisible(true);
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
+  // One toast at a time: a newer event replaces the current one.
+  const toastRef = useRef<Toast | null>(null);
   const pushToast = useCallback((t: Omit<Toast, "id">) => {
+    // A routine confirmation never hides a warning or a rate alert that is still on screen.
+    if (t.kind === "info" && toastRef.current && IMPORTANT_TOASTS.has(toastRef.current.kind)) return;
     const id = toastId.current++;
-    setToasts((prev) => [...prev.slice(-2), { ...t, id }]);
-    window.setTimeout(() => setToasts((prev) => prev.filter((x) => x.id !== id)), t.kind === "fraud" || t.kind === "rate_alert" ? 9000 : 4500);
+    toastRef.current = { ...t, id };
+    setToast({ ...t, id });
+    if (toastTimer.current) window.clearTimeout(toastTimer.current);
+    toastTimer.current = window.setTimeout(() => {
+      toastRef.current = null;
+      setToast((cur) => (cur?.id === id ? null : cur));
+    }, IMPORTANT_TOASTS.has(t.kind) ? 9000 : 5000);
   }, []);
 
-  // Live events: settlement updates, alerts, OTP on the sandbox phone, notifications.
+  // Live events: settlement updates, alerts, step-up codes and notifications.
   useEffect(() => {
     if (!session) return;
     let es: EventSource | null = null;
@@ -125,10 +159,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
         setLiveEvents((prev) => [...prev.slice(-80), { event, data, at: Date.now() }]);
         if (event === "sandbox_phone") {
-          setPhone((prev) => [{ id: Date.now(), at: Date.now(), ...data }, ...prev].slice(0, 12));
-          setPhoneOpen(true);
+          setPhone({ id: Date.now(), at: Date.now(), ...data });
         } else if (event === "notification") {
           pushToast({ kind: data.kind, title: data.title, body: data.body, data: data.data });
+          setUnread((n) => n + 1);
           const act = data.data?.action;
           if (act?.id && act.confirm_token) setTokenCards((prev) => ({ ...prev, [act.id]: act }));
         } else if (event === "settings") {
@@ -150,55 +184,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       es?.close();
       if (retry) window.clearTimeout(retry);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reconnect only when the workspace changes, not on every session update
   }, [session?.workspace_token, bump, pushToast]);
 
-  const navigate = useCallback((r: Route) => {
-    window.location.hash = `/${r}`;
+  const navigate = useCallback((r: Route, p: string | null = null) => {
+    window.location.hash = r === "landing" ? "/" : `/${r}${p ? `/${encodeURIComponent(p)}` : ""}`;
     setRoute(r);
-    setKbSlug(null);
+    setParam(p);
+    setTitleVisible(true);
+    window.scrollTo({ top: 0 });
+  }, []);
+
+  const askRemi = useCallback((message: string, opts?: { attachment?: string; autoSend?: boolean }) => {
+    setChatDraft({ message, attachment: opts?.attachment, autoSend: opts?.autoSend ?? true });
+    setDemoOpen(false);
+    setChatOpen(true);
   }, []);
 
   const value = useMemo<Store>(
     () => ({
-      session,
-      loading,
-      error,
-      refreshSession,
-      setSession,
-      route,
-      navigate,
-      version,
-      bump,
-      toasts,
-      pushToast,
-      dismissToast: (id) => setToasts((prev) => prev.filter((t) => t.id !== id)),
-      phone,
-      phoneOpen,
-      setPhoneOpen,
-      kbSlug,
-      openKb: setKbSlug,
-      chatDraft,
-      askRemi: (message, opts) => {
-        setChatDraft({ message, attachment: opts?.attachment, autoSend: opts?.autoSend ?? true });
-        navigate("chat");
-      },
-      consumeDraft: () => setChatDraft(null),
-      liveEvents,
-      tokenCards,
-      connected,
-      theme,
-      toggleTheme: () => {
-        const next = theme === "dark" ? "light" : "dark";
-        document.documentElement.classList.toggle("dark", next === "dark");
-        try {
-          localStorage.setItem("remi-theme", next);
-        } catch {
-          /* storage unavailable */
-        }
-        setTheme(next);
-      },
+      session, loading, error, refreshSession, setSession, route, param, navigate, version, bump,
+      toast, pushToast, dismissToast: () => { toastRef.current = null; setToast(null); },
+      phone, dismissPhone: () => setPhone(null),
+      kbSlug, openKb: setKbSlug,
+      chatOpen, setChatOpen, chatDraft, askRemi, consumeDraft: () => setChatDraft(null),
+      demoOpen, setDemoOpen,
+      liveEvents, unread, clearUnread: () => setUnread(0), tokenCards, connected,
+      titleVisible, setTitleVisible,
     }),
-    [session, loading, error, refreshSession, route, navigate, version, bump, toasts, pushToast, phone, phoneOpen, kbSlug, chatDraft, liveEvents, tokenCards, connected, theme],
+    [session, loading, error, refreshSession, route, param, navigate, version, bump, toast, pushToast, phone, kbSlug, chatOpen, chatDraft, askRemi, demoOpen, liveEvents, unread, tokenCards, connected, titleVisible],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
@@ -235,4 +249,15 @@ export function useApi<T>(path: string | null, deps: unknown[] = []): { data: T 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path, version, nonce, ...deps]);
   return { data, error, loading, reload: () => setNonce((n) => n + 1) };
+}
+
+/** Simulated "now" in ms (sandbox clock offset applied), ticking every second. */
+export function useSimNow(): number {
+  const { session } = useStore();
+  const [tick, setTick] = useState(Date.now());
+  useEffect(() => {
+    const t = window.setInterval(() => setTick(Date.now()), 1000);
+    return () => window.clearInterval(t);
+  }, []);
+  return tick + (session?.clock_offset_seconds ?? 0) * 1000;
 }

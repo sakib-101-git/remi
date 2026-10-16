@@ -1,41 +1,60 @@
 import { lazy, Suspense } from "react";
-import { Loader2 } from "lucide-react";
+import { ChatPanel } from "./app/ChatPanel";
+import { ArticleSheet, DemoDrawer, Onboarding, PhoneNotice, ToastHost } from "./app/Overlays";
+import { Shell } from "./app/Shell";
+import { ChatProvider } from "./lib/chat";
 import { useStore } from "./lib/store";
-import { Logo, Shell } from "./components/Layout";
-import { Button, Skeleton } from "./components/ui";
-import Dashboard from "./pages/Dashboard";
-import Chat from "./pages/Chat";
+import Home from "./pages/Home";
+import Landing from "./pages/Landing";
+import { AppIcon, Button, Dots, Skeleton } from "./ui";
 
-const Transfers = lazy(() => import("./pages/Transfers"));
-const Budget = lazy(() => import("./pages/Budget"));
+const Send = lazy(() => import("./pages/Send"));
+const Wallets = lazy(() => import("./pages/Wallets"));
+const Insights = lazy(() => import("./pages/Insights"));
 const Credit = lazy(() => import("./pages/Credit"));
-const Audit = lazy(() => import("./pages/Audit"));
-const Settings = lazy(() => import("./pages/Settings"));
-const Sandbox = lazy(() => import("./pages/Sandbox"));
-const Knowledge = lazy(() => import("./pages/Knowledge"));
+const Security = lazy(() => import("./pages/Security"));
+const Help = lazy(() => import("./pages/Help"));
+const Styleguide = lazy(() => import("./pages/Styleguide"));
+
+const PAGES = { home: Home, send: Send, wallets: Wallets, insights: Insights, credit: Credit, security: Security, help: Help, styleguide: Styleguide };
 
 export default function App() {
   const { session, loading, error, refreshSession, route } = useStore();
   if (loading && !session) {
     return (
-      <div className="grid h-full place-items-center">
-        <div className="flex flex-col items-center gap-4"><Logo /><Loader2 className="h-5 w-5 animate-spin text-brand-500" /><p className="text-muted text-xs">Preparing your private sandbox…</p></div>
+      <div className="grid min-h-screen place-items-center">
+        <div className="flex flex-col items-center gap-5"><AppIcon size={56} /><Dots className="text-primary" /><p className="text-small text-ink-muted">Preparing your private sandbox</p></div>
       </div>
     );
   }
   if (!session) {
     return (
-      <div className="grid h-full place-items-center p-6 text-center">
-        <div className="space-y-4"><Logo /><p className="text-muted text-sm">{error ?? "Could not start the sandbox."}</p><Button onClick={refreshSession}>Try again</Button></div>
+      <div className="grid min-h-screen place-items-center p-6 text-center">
+        <div className="flex flex-col items-center gap-4"><AppIcon size={56} /><p className="text-body text-ink-muted">{error ?? "We couldn't start the sandbox."}</p><Button onClick={refreshSession}>Try again</Button></div>
       </div>
     );
   }
-  const Page = { dashboard: Dashboard, chat: Chat, transfers: Transfers, budget: Budget, credit: Credit, audit: Audit, settings: Settings, sandbox: Sandbox, knowledge: Knowledge }[route];
   return (
-    <Shell>
-      <Suspense fallback={<Skeleton className="h-96" />}>
-        <Page key={`${route}-${session.persona}`} />
-      </Suspense>
-    </Shell>
+    <ChatProvider>
+      {route === "landing" ? <Landing /> : (
+        <Shell>
+          <Suspense fallback={<Skeleton className="h-96" />}>
+            <Page />
+          </Suspense>
+          <Onboarding />
+        </Shell>
+      )}
+      <ChatPanel />
+      <DemoDrawer />
+      <ArticleSheet />
+      <PhoneNotice />
+      <ToastHost />
+    </ChatProvider>
   );
+}
+
+function Page() {
+  const { route, param, session } = useStore();
+  const P = PAGES[route as keyof typeof PAGES] ?? Home;
+  return <P key={`${route}-${param ?? ""}-${session?.persona}`} />;
 }

@@ -99,6 +99,38 @@ def _commas(text: str) -> str:
     return _NUM_IN_TEXT.sub(lambda m: f"{int(m.group(1)):,}{m.group(2) or ''}", text)
 
 
+_SYM = {"GBP": "£", "USD": "$", "BDT": "৳", "CAD": "C$", "NGN": "₦", "INR": "₹", "EUR": "€"}
+_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+def _m(amount: Any, ccy: str, whole: bool = False) -> str:
+    """Student-friendly money: '৳1,531,991.57' (or whole units for overview numbers)."""
+    value = Decimal(str(amount))
+    body = f"{value:,.0f}" if whole else f"{value:,.2f}"
+    return f"{_SYM.get(ccy, '')}{body}" if ccy in _SYM else f"{body} {ccy}"
+
+
+def _mt(text: Any, whole: bool = False) -> str:
+    """'1531991.57 BDT' -> '৳1,531,991.57'."""
+    parts = str(text or "").split()
+    return _m(parts[0], parts[1], whole) if len(parts) == 2 else str(text or "")
+
+
+def _d(iso: Any, weekday: bool = True) -> str:
+    """'2026-10-22...' -> 'Thu 22 Oct' (or '22 Oct 2026')."""
+    from datetime import date as _date
+
+    try:
+        d = _date.fromisoformat(str(iso)[:10])
+    except ValueError:
+        return str(iso)
+    return f"{d.strftime('%a')} {d.day} {_MONTHS[d.month - 1]}" if weekday else f"{d.day} {_MONTHS[d.month - 1]} {d.year}"
+
+
+def _plain_provider(name: Any) -> str:
+    return str(name or "").replace(" (sandbox)", "")
+
+
 def _call(name: str, args: dict[str, Any], n: int) -> ChatResult:
     return ChatResult(content="", tool_calls=[ToolCall(id=f"mock_{n}_{name}", name=name, arguments=json.dumps(args))])
 
@@ -232,19 +264,12 @@ class MockAgent:
         best = r.get("recommended")
         if not best:
             return _say("No provider can deliver that exact amount before the deadline. " + "; ".join(a["why_not"] for a in r.get("alternatives", [])[:3]))
-        lines = [
-            f"To have exactly **{best['receive_amount']} {best['receive_currency']}** arrive, send **{best['send_amount']} {best['send_currency']}** with **{best['provider_name']}**.",
-            "",
-            f"- Rate {best['rate_display']} (mid-market {best['mid_display']}), fee {best['fee']} {best['send_currency']}",
-            f"- Landed cost {best['landed_cost']} {best['send_currency']} ({best['effective_cost_pct']}% of the amount)",
-            f"- Worst-case arrival {best['arrival_latest'][:10]}" + (f", before the {r['deadline']} deadline" if r.get("deadline") else ""),
-            "- Formula: send = (target ÷ offered rate + fixed fee) ÷ (1 − % fee), rounded up so the target is never short.",
-        ]
-        alts = r.get("alternatives", [])
-        if alts:
-            lines += ["", "Why not the others: " + "; ".join(f"{a['provider']}: {a['why_not']}" for a in alts[:3])]
-        lines += ["", "Want me to prepare this payment for your confirmation? [KB: FX and fee glossary]"]
-        return _say("\n".join(lines))
+        deadline = f", before your {_d(r['deadline'], weekday=False)} deadline" if r.get("deadline") else ""
+        return _say(
+            f"To have exactly **{_m(best['receive_amount'], best['receive_currency'])}** arrive, send **{_m(best['send_amount'], best['send_currency'])}** with **{_plain_provider(best['provider_name'])}**. "
+            f"That includes {_m(best['landed_cost'], best['send_currency'], whole=True)} in fees and exchange-rate markup, and it arrives by {_d(best['arrival_latest'])}{deadline}.\n\n"
+            "Want me to prepare it for your approval? [KB: FX and fee glossary]"
+        )
 
     def _credit(self, text: str, done: list, n: int) -> ChatResult:
         t = text.lower()
@@ -277,13 +302,13 @@ class MockAgent:
         s = done[0][2]
         ccy = s["reporting_currency"]
         rw = s["runway"]
-        cats = ", ".join(f"{c['category']} {c['last_30_days']}" for c in s.get("top_categories", [])[:4])
-        recs = "\n".join(f"{i}. **{r['title']}** - {r['detail']}" for i, r in enumerate(s.get("recommendations", []), 1))
-        multi = ", ".join(f"{v} {k}" for k, v in s.get("spend_by_original_currency", {}).items())
+        cats = ", ".join(f"{c['category']} {_m(c['last_30_days'], ccy, whole=True)}" for c in s.get("top_categories", s.get("categories", []))[:3])
+        tip = (s.get("recommendations") or [None])[0]
+        tip_text = f"\n\n**One thing you could do:** {tip['title']}. {tip['detail']}" if tip else ""
         return _say(
-            f"Over the last 30 days you spent **{s['total_spend_30d']} {ccy}** (previous 30 days: {s['total_spend_prev_30d']} {ccy}), spread across {multi}, all converted to {ccy} at each day's sandbox rate. Biggest categories: {cats}.\n\n"
-            f"**Runway:** after setting aside {rw['reserved_for_obligations']} {ccy} for upcoming obligations, your money lasts about **{rw['runway_days']} days - until {rw['runway_until']}** at {rw['daily_burn']} {ccy}/day. {rw['excludes']}\n\n"
-            f"Three things you could do:\n{recs}\n\n[KB: Understanding your runway]"
+            f"Your money lasts until **{_d(rw['runway_until'], weekday=False)}**, about {rw['runway_days']} days. "
+            f"You spend about {_m(rw['daily_burn'], ccy, whole=True)} a day, and {_m(rw['reserved_for_obligations'], ccy, whole=True)} is set aside for tuition and bills.\n\n"
+            f"In the last 30 days you spent **{_m(s['total_spend_30d'], ccy, whole=True)}**. Biggest: {cats}.{tip_text}\n\n[KB: Understanding your runway]"
         )
 
     def _create_budget(self, text: str, done: list, n: int) -> ChatResult:
@@ -356,9 +381,9 @@ class MockAgent:
         if r.get("status") == "blocked":
             return _say("I can't add this payee: " + "; ".join(r.get("policy_reasons", [])))
         return _say(
-            f"Adding a new payee is a **high-risk (T3) action**, so I've prepared it for you to review: confirm the card, then enter the one-time code from your Sandbox phone. "
-            "After that there's a short **cooling-off period** before any payment to them is released - this protects you if someone tricked you into adding the account. "
-            "Once the payee is added, ask me to pay them and I'll prepare that payment too. [KB: How Remi's safety tiers work]"
+            "Adding a new recipient needs extra care, so I've prepared it for you to review: approve the card, then enter the one-time code we send to your phone. "
+            "After that there's a short **waiting period** before money can go to them. It protects you if someone tricked you into adding the account. "
+            "Once they're added, ask me to pay them and I'll prepare that payment too. [KB: How Remi's safety tiers work]"
         )
 
     def _quotes(self, text: str, done: list, n: int) -> ChatResult:
@@ -373,7 +398,10 @@ class MockAgent:
         best = r.get("recommended")
         if not best:
             return _say("No provider can do this transfer: " + "; ".join(a["why_not"] for a in r.get("alternatives", [])))
-        return _say(f"Best option: **{best['provider_name']}** - send {best['send_amount']} {best['send_currency']}, recipient gets {best['receive_amount']} {best['receive_currency']}, landed cost {best['landed_cost']} {best['send_currency']} ({best['effective_cost_pct']}%), arrives by {best['arrival_latest'][:10]}. " + " ".join(f"{a['provider']}: {a['why_not']}." for a in r.get("alternatives", [])[:3]) + " [KB: How cross-border transfers work]")
+        return _say(
+            f"Best option: **{_plain_provider(best['provider_name'])}**. You send {_m(best['send_amount'], best['send_currency'])} and they receive {_m(best['receive_amount'], best['receive_currency'])} by {_d(best['arrival_latest'])}, "
+            f"with {_m(best['landed_cost'], best['send_currency'], whole=True)} in fees and exchange-rate markup. The other providers cost more or can't take this amount. [KB: How cross-border transfers work]"
+        )
 
     def _convert(self, text: str, done: list, n: int) -> ChatResult:
         if not done:
@@ -391,7 +419,10 @@ class MockAgent:
         if r.get("status") == "blocked":
             return _say("I can't prepare that conversion: " + "; ".join(r.get("policy_reasons", [])))
         s = r.get("summary", {})
-        return _say(f"I've prepared a conversion: you sell **{s.get('you_sell')}** and get **{s.get('you_get')}** at {s.get('rate')} (mid-market {s.get('mid_rate')}; cost vs mid {s.get('cost_vs_mid')}). It's a **{r['tier']}** action - review the card and confirm to execute. Rates are sandbox rates and the quote is locked for 5 minutes.")
+        return _say(
+            f"I've prepared a conversion: you convert **{_mt(s.get('you_sell'))}** and get **{_mt(s.get('you_get'))}** at {s.get('rate')}. "
+            f"That costs {_mt(s.get('cost_vs_mid'))} compared with the mid-market rate. Review the card and approve it when you're ready."
+        )
 
     def _fx_options(self, text: str, done: list, n: int) -> ChatResult:
         if not done:
@@ -433,23 +464,23 @@ class MockAgent:
             return f"**I can't prepare this payment.** {reasons}"
         lines = []
         if re.search(r"\bsplit\b", text, re.I):
-            lines.append("**I won't split this into smaller payments** - breaking a transfer up to get under a limit looks like structuring and can get your account blocked. [KB: Transfer limits and why Remi never splits payments]")
+            lines.append("**I won't split this into smaller payments.** Breaking a transfer up to get under a limit looks like structuring and can get your account blocked. [KB: Transfer limits and why Remi never splits payments]")
         if r.get("routing_note"):
             lines.append(r["routing_note"])
-        lines.append(f"I've prepared **{s.get('title')}** via **{s.get('provider')}**:")
-        lines += [
-            f"- You send **{s.get('you_send')}** · fee {s.get('fee')} · rate {s.get('rate')}",
-            f"- {s.get('recipient')} receives **{s.get('they_receive')}** · landed cost {s.get('landed_cost')}",
-            f"- Worst-case arrival {str(s.get('arrival', ''))[:10]}",
-        ]
+        lines.append(
+            f"I've prepared your payment to **{s.get('recipient')}** with **{_plain_provider(s.get('provider'))}**. "
+            f"They receive **{_mt(s.get('they_receive'))}** by **{_d(s.get('arrival'))}**, and it costs {_mt(s.get('landed_cost'), whole=True)} in fees and exchange-rate markup."
+        )
         why = r.get("why_this_provider") or []
         if why:
-            lines.append("- Why not the others: " + "; ".join(f"{a['provider']} - {a['why_not']}" for a in why[:3]))
+            lines.append("It's the cheapest option that arrives in time. The other providers cost more or can't take this amount.")
         if tuition:
-            lines.append(f"- Purpose code {s.get('purpose_code')}, source of funds: {s.get('source_of_funds')}. Typical documents: " + ", ".join((r.get('compliance') or [])[:3]) + " (illustrative)")
-        tier_text = {"T2": "a **T2** action: review the card and press Confirm", "T3": "a **T3** action: confirm the card, then enter the one-time code from your Sandbox phone"}
+            lines.append("I've added the purpose of payment (tuition) and your source of funds for you.")
         lines.append("")
-        lines.append(f"This is {tier_text.get(r.get('tier'), 'an action that needs your confirmation')}." + (" Reasons: " + "; ".join(r.get("policy_reasons", [])) + "." if r.get("tier") == "T3" and r.get("policy_reasons") else ""))
+        if r.get("tier") == "T3":
+            lines.append("Because this is a large or unusual payment, it needs an extra check: approve the card, then enter the one-time code we send to your phone.")
+        else:
+            lines.append("Review the card and approve it when you're ready.")
         lines.append("Nothing has moved yet.")
         return "\n".join(lines)
 
