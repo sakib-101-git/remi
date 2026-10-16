@@ -46,6 +46,7 @@ International students move money across borders at the most expensive and stres
 
 Each persona has 90 days of deterministic transaction history, beneficiaries, obligations and an invoice from a fictional institution in the verified registry.
 
+<!-- pagebreak -->
 # 3. System architecture
 
 ## 3.1 Layered architecture
@@ -161,6 +162,7 @@ All providers use **one OpenAI-compatible client** (`openai` SDK used genericall
 
 Replies carry **cards** rendered by the UI: quote comparison, confirmation/action card, budget, runway, credit plan, alert, fraud warning, checklist, sources. Every recommendation carries an **explainability object**: inputs, formula, alternatives with the reason each was rejected, assumptions, data timestamp ("sandbox rates"), sources and disclaimer.
 
+<!-- pagebreak -->
 # 5. Core algorithms
 
 ## 5.1 Remittance cost optimizer (`services/quotes.py`)
@@ -249,6 +251,7 @@ score = α · cos_norm(q, c) + (1 − α) · bm25_norm(q, c), with α = 0.6, whe
 * **Citations.** The agent cites `[KB: title]`. The orchestrator converts every citation into a clickable **source chip** that opens the article in a side panel.
 * **Untrusted data.** Each chunk is scanned at index time. Instruction-like sentences in flagged chunks are replaced with `[removed: instruction-like text]`, and every retrieved chunk is wrapped in `<<UNTRUSTED_DATA source="kb:…">>`. A test plants a poisoned article and verifies it is sanitised and creates no action.
 
+<!-- pagebreak -->
 # 7. Security design
 
 ## 7.1 Permission tiers
@@ -324,6 +327,7 @@ Signed per-visitor workspaces (isolation is tested), per-IP+workspace rate limit
 * **Sandbox control panel.** Advance simulated time, tick FX, apply a ±1% shock, inject an incoming family remittance, inject a suspicious invoice, reset the sandbox.
 * **Per-visitor workspaces.** A signed cookie gives each browser its own seeded copy, and all tables are scoped by `workspace_id`.
 
+<!-- pagebreak -->
 # 10. Testing and evaluation
 
 * **Unit/API tests.** 103 pytest tests: optimizer maths (forward, reverse, percentage fee, cut-off, ranking), Decimal rounding, ledger balance, limits, risk rules (structuring, history, corridor), tiering, confirmation-token binding/expiry/single-use/tamper, OTP attempts, cooling-off release, settlement lifecycle, audit-chain tamper detection (edit, delete, re-hash), redaction, injection detection, invoice fraud, workspace isolation, idempotency double-submit, governance step-up, kill switch, tool allowlist and schema validation, tool-call cap, RAG citations and poisoned-chunk sanitisation, replay-cache key stability, Gemini `thought_signature` passthrough, workspace-scoped invoice ids, `.env` parsing.
@@ -372,3 +376,36 @@ A multi-stage Dockerfile (Node build → Python slim) reads `PORT`, exposes a he
 Repository: <https://github.com/sakib-101-git/remi> · License: MIT · Third-party licenses: `THIRD_PARTY_LICENSES.md`.
 
 *Sandbox demo. Not financial, legal or tax advice. All company, bank, provider and university names are fictional.*
+
+<!-- pagebreak -->
+# Appendix A. Screens
+
+All screenshots are captured automatically from the running app by `scripts/capture_screenshots.py` (`evidence/screenshots/`).
+
+<div class="figure-grid" markdown="1">
+
+![Dashboard](../evidence/screenshots/02_dashboard.png)
+Dashboard: multi-currency wallets, runway, obligations
+
+![S1 quotes](../evidence/screenshots/03_chat_s1_quotes.png)
+S1: provider comparison on landed cost
+
+![Confirmation card](../evidence/screenshots/04_confirm_card.png)
+T2 confirmation card (nothing moves until confirmed)
+
+![Receipt](../evidence/screenshots/05_receipt.png)
+Executed, receipt, live settlement
+
+![Fraud block](../evidence/screenshots/09_fraud_block.png)
+S7: invoice fraud and prompt injection blocked
+
+![Step-up](../evidence/screenshots/10_stepup_phone.png)
+S8: T3 step-up on the Sandbox phone
+
+![RAG sources](../evidence/screenshots/14_rag_sources.png)
+S13: cited knowledge-base answer
+
+![Audit verified](../evidence/screenshots/11_audit_verified.png)
+Hash-chained audit log, verified
+
+</div>
