@@ -164,3 +164,29 @@ def test_foreign_or_stale_invoice_id_is_replaced_by_own_open_invoice(ctx):
     action = ctx.session.get(PendingAction, out.data["action_id"])
     own = [i.id for i in invoices.open_invoices(ctx)]
     assert action.payload["invoice_id"] in own
+
+
+def test_attachment_is_reviewed_deterministically_and_fraud_removes_money_tools(ctx, monkeypatch):
+    """Even a model that skips document review and goes straight to paying cannot propose a payment from a fraudulent invoice."""
+    from app.agent.llm import ChatResult, FallbackChain, ToolCall
+
+    offered: list[set[str]] = []
+
+    class EagerPayer:
+        name, model = "mock", "eager"
+
+        def available(self):
+            return True
+
+        def chat(self, messages, tools_):
+            offered.append({t["function"]["name"] for t in tools_})
+            if not any(m["role"] == "tool" for m in messages):
+                return ChatResult(content="", tool_calls=[ToolCall(id="p1", name="propose_payment", arguments='{"recipient": "university", "amount": "9250", "amount_currency": "GBP"}')])
+            return ChatResult(content="I won't pay this document.")
+
+    monkeypatch.setattr(orchestrator, "_chain", FallbackChain([EagerPayer()]))
+    out = orchestrator.run_turn(ctx, "I got this updated invoice from my university, please pay it", attachment=suspicious_invoice_text(ctx.ws, ctx.user))
+    orchestrator.reset_chain()
+    assert any(c["type"] == "fraud" for c in out["cards"])
+    assert not any(name.startswith("propose_") for name in offered[0])
+    assert ctx.session.exec(select(PendingAction).where(PendingAction.workspace_id == ctx.ws_id)).first() is None

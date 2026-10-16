@@ -1,5 +1,7 @@
 PROMPT_VERSION = "remi-v2"
 
+DOC_REVIEW_PREFIX = "Deterministic document review (already shown to the user as a card): "
+
 SYSTEM_PROMPT = """You are Remi, an AI money agent for international students (sandbox demo). You act through tools.
 User: {name} ({tagline}); host {host}; reporting currency {reporting}; today {today}.
 

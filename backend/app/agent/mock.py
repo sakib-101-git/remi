@@ -10,6 +10,7 @@ from typing import Any
 from ..money import D
 from ..security.injection import UNTRUSTED_OPEN
 from .llm import ChatResult, ToolCall
+from .prompts import DOC_REVIEW_PREFIX
 
 CCY_WORDS = {
     "gbp": "GBP", "£": "GBP", "pound": "GBP", "pounds": "GBP", "bdt": "BDT", "taka": "BDT", "tk": "BDT", "৳": "BDT",
@@ -133,7 +134,8 @@ class MockAgent:
 
         t = text.lower()
         if has_doc:
-            return self._document(done, n)
+            review = json.loads(raw.rsplit(DOC_REVIEW_PREFIX, 1)[1]) if DOC_REVIEW_PREFIX in raw else None
+            return self._document(done, n, review)
         if re.search(r"\b(tell|notify|alert|ping|let) me (know )?when\b|\brate alert\b|\bwatch the rate\b", t) and "set_rate_alert" in available:
             return self._alert(text, done, n)
         if re.search(r"(receive|get|arrive)s? exactly|must receive|needs? to receive|how much .*\b(send|need)\b", t):
@@ -173,10 +175,10 @@ class MockAgent:
             return _call(tool, args, n)
         return _say(fmt(done[-1][2]))
 
-    def _document(self, done: list, n: int) -> ChatResult:
-        if not done:
+    def _document(self, done: list, n: int, review: dict[str, Any] | None) -> ChatResult:
+        if review is None and not done:
             return _call("analyze_document", {}, n)
-        r = done[0][2]
+        r = review or done[0][2]
         if r.get("fraud_suspected"):
             lines = ["**I blocked this document - it looks like invoice fraud.**", ""]
             lines += [f"- {w}" for w in r.get("warnings", [])]

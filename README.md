@@ -71,7 +71,7 @@ The fallback chain is **Gemini → Groq → OpenRouter → Ollama → determinis
 ## Tests and evaluation
 
 ```bash
-cd backend && .venv/bin/python -m pytest -q                     # 102 unit/API tests
+cd backend && .venv/bin/python -m pytest -q                     # 104 unit/API tests
 backend/.venv/bin/python evals/run_evals.py                      # 13 golden scenarios, offline agent
 backend/.venv/bin/python evals/run_evals.py --provider gemini --sleep 6 --cache record   # on a free real model
 cd frontend && npx playwright test                               # S1 end to end in a real browser
@@ -79,7 +79,7 @@ cd frontend && npx playwright test                               # S1 end to end
 
 | Suite | Result |
 |---|---|
-| Unit and API tests (pytest) | **102 passed**: confirmation tokens, idempotency, limits, risk rules, audit tamper detection, injection, workspace isolation, optimizer math, retrieval |
+| Unit and API tests (pytest) | **104 passed**: confirmation tokens, idempotency, limits, risk rules, audit tamper detection, injection, workspace isolation, optimizer math, retrieval |
 | Golden scenarios S1–S13, deterministic agent | **13/13** |
 | Golden scenarios S1–S13, Gemini (free tier, live) | **13/13**, see [`evidence/eval_report.md`](evidence/eval_report.md) |
 | Golden scenarios S1–S13, recorded replay | **13/13** |
@@ -97,7 +97,7 @@ The 13 scenarios (S1 tuition payment, S2 reverse quote, S3 family transfer, S4 b
 | T3 | New payee, over threshold, first-time corridor, risk ≥ 50 | Confirmation **+ step-up OTP + cooling-off** |
 | T4 | Change limits or permissions, disable alerts, edit audit | **Not exposed to the agent**; human only, in Settings with step-up |
 
-Also: deterministic limits and an explainable risk engine (structuring, velocity, restricted jurisdictions, registry mismatch); prompt-injection defence (documents and RAG chunks wrapped as untrusted data); invoice payees must match a verified registry; idempotency keys; PII redaction before the LLM; per-visitor signed workspaces; rate limits and a daily LLM budget; security headers; a kill switch. **The LLM never makes a security decision.** Details and 17 known risks: [`docs/SECURITY_SELF_ASSESSMENT.md`](docs/SECURITY_SELF_ASSESSMENT.md).
+Also: deterministic limits and an explainable risk engine (structuring, velocity, restricted jurisdictions, registry mismatch); prompt-injection defence (documents and RAG chunks wrapped as untrusted data; every attachment is fraud-checked by code before the model sees it); invoice payees must match a verified registry; idempotency keys; PII redaction before the LLM; per-visitor signed workspaces; rate limits and a daily LLM budget; security headers; a kill switch. **The LLM never makes a security decision.** Details and 17 known risks: [`docs/SECURITY_SELF_ASSESSMENT.md`](docs/SECURITY_SELF_ASSESSMENT.md).
 
 ## Documentation
 

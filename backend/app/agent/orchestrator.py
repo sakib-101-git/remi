@@ -142,15 +142,26 @@ def run_turn(ctx: Ctx, text: str, *, attachment: str | None = None, emit: Emit |
     if guardrails.is_speculation(text):
         system += "\nThe user is asking for a prediction: explain you don't forecast rates, then offer fx_conversion_options."
     user_content = text
+    cards: list[dict[str, Any]] = []
+    used: list[dict[str, Any]] = []
     if attachment:
+        # Every document is reviewed by deterministic code before the model sees it; the model cannot skip this step.
+        review = tools.run_tool(ctx, "analyze_document", {}, allowed={"analyze_document"}, actor="system")
+        cards.extend(review.cards)
+        used.append({"name": "analyze_document", "tier": "T0", "ok": "error" not in review.data, "by": "system"})
+        drop = {"analyze_document"}
+        if review.data.get("fraud_suspected"):
+            drop |= {name for name in allowed if name.startswith("propose_")}
+        schemas = [sch for sch in schemas if sch["function"]["name"] not in drop]
+        allowed -= drop
+        verdict = {k: review.data.get(k) for k in ("verdict", "fraud_suspected", "warnings", "safe_next_step")}
         user_content += "\n\n" + injection.wrap_untrusted("uploaded_document", attachment)
+        user_content += "\n\n" + prompts.DOC_REVIEW_PREFIX + json.dumps(verdict)
     messages: list[dict[str, Any]] = [{"role": "system", "content": system}, *history, {"role": "user", "content": user_content}]
 
     live_ok = allow_live
     if live_ok and not _budget.take(settings.llm_daily_budget):
         live_ok = False
-    cards: list[dict[str, Any]] = []
-    used: list[dict[str, Any]] = []
     executed = proposed = False
     result: ChatResult | None = None
     meta: dict[str, Any] = {"tools": used, "demo_mode": not live_ok}

@@ -19,7 +19,7 @@ Remi follows the track theme, *AI as a Financial Participant*. The agent complet
 
 Remi runs at zero cost. The primary model is Google Gemini's free tier, with a fallback chain (Groq → OpenRouter free → local Ollama → deterministic mock agent) and a record/replay cache, so the live demo never depends on rate limits or venue Wi-Fi.
 
-**Results (sandbox):** 13/13 golden scenarios pass end to end through the real HTTP API on the deterministic agent (122/122 checks), on Google Gemini's free tier live (136/136 checks, no fallback allowed) and from the recorded replay cache (136/136). 103 automated unit and API tests and a Playwright browser test of S1 are green. Details in §10.
+**Results (sandbox):** 13/13 golden scenarios pass end to end through the real HTTP API on the deterministic agent (122/122 checks), on Google Gemini's free tier live (136/136 checks, no fallback allowed) and from the recorded replay cache (136/136). 104 automated unit and API tests and a Playwright browser test of S1 are green. Details in §10.
 
 # 2. Problem and target users
 
@@ -284,6 +284,8 @@ Per-transaction maximum $30,000 (block) · step-up above $5,000 ($20,000 for reg
 
 ## 7.5 Prompt-injection and fraud defence
 
+* **Deterministic document pre-review.** Every attachment goes through `invoices.analyze()` *before* the model sees it. The model cannot skip it, and the fraud card is always shown. If fraud is suspected, `propose_*` tools are removed from that turn's tool list, so not even a model that ignores the warning can create a payment from the document.
+
 * `security/injection.py` detects instruction overrides, role hijacks, system-prompt probes, "bank details changed" claims, new-account requests, tool-call injection, auto-approve requests and urgency/secrecy language.
 * Untrusted text (documents, KB chunks) is wrapped in delimiters; nested delimiters are neutralised.
 * `services/invoices.py` extracts fields deterministically, compares the institution and account with the **verified registry**, and **blocks** on mismatch or injection, raising a red fraud card and notification and writing a `document.reviewed` audit entry.
@@ -330,7 +332,7 @@ Signed per-visitor workspaces (isolation is tested), per-IP+workspace rate limit
 <!-- pagebreak -->
 # 10. Testing and evaluation
 
-* **Unit/API tests.** 103 pytest tests: optimizer maths (forward, reverse, percentage fee, cut-off, ranking), Decimal rounding, ledger balance, limits, risk rules (structuring, history, corridor), tiering, confirmation-token binding/expiry/single-use/tamper, OTP attempts, cooling-off release, settlement lifecycle, audit-chain tamper detection (edit, delete, re-hash), redaction, injection detection, invoice fraud, workspace isolation, idempotency double-submit, governance step-up, kill switch, tool allowlist and schema validation, tool-call cap, RAG citations and poisoned-chunk sanitisation, replay-cache key stability, Gemini `thought_signature` passthrough, workspace-scoped invoice ids, `.env` parsing.
+* **Unit/API tests.** 104 pytest tests: optimizer maths (forward, reverse, percentage fee, cut-off, ranking), Decimal rounding, ledger balance, limits, risk rules (structuring, history, corridor), tiering, confirmation-token binding/expiry/single-use/tamper, OTP attempts, cooling-off release, settlement lifecycle, audit-chain tamper detection (edit, delete, re-hash), redaction, injection detection, invoice fraud, workspace isolation, idempotency double-submit, governance step-up, kill switch, tool allowlist and schema validation, tool-call cap, RAG citations and poisoned-chunk sanitisation, replay-cache key stability, Gemini `thought_signature` passthrough, workspace-scoped invoice ids, `.env` parsing.
 * **Golden scenarios.** `evals/run_evals.py` drives S1–S13 through the real HTTP API and checks tools, cards, policy tier, status transitions, final balances, trial balance and audit-chain validity.
 
 | Run | Scenarios | Checks |

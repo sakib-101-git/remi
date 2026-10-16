@@ -70,7 +70,8 @@ def tick(ws: Workspace, steps: int = 1, shock: tuple[str, Decimal] | None = None
     cfg = fx_config()["tick"]
     vol = float(cfg["volatility"])
     rates = current_rates(ws)
-    for _ in range(max(1, steps)):
+    # A shock is an exact, labelled move ("GBP weakens 1%"), so it replaces the random step instead of adding noise.
+    for _ in range(0 if shock else max(1, steps)):
         rng = random.Random(f"{ws.id}:{ws.fx_tick}")
         for ccy in sorted(rates):
             if ccy == "USD":
@@ -80,6 +81,7 @@ def tick(ws: Workspace, steps: int = 1, shock: tuple[str, Decimal] | None = None
     if shock:
         ccy, pct = shock
         rates[ccy.upper()] = q_rate(rates[ccy.upper()] * (Decimal("1") + D(pct)))
+        ws.fx_tick += 1
     ws.fx_rates = {ccy: str(v) for ccy, v in rates.items()}
     return rates
 

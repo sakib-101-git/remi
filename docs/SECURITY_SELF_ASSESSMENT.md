@@ -13,7 +13,7 @@ We assessed it in three ways:
 
 1. **Design review** of each control against the permission-tier model in §2. Every row cites the file and function that enforces it.
 2. **STRIDE-lite threat modelling** of the trust boundaries: browser ↔ API, API ↔ agent, agent ↔ LLM provider, documents and knowledge base ↔ agent, and operator ↔ public deployment.
-3. **Automated evidence:** 99 pytest unit/API tests, a Playwright end-to-end test of S1 and 13 golden scenarios (S1–S13). The scenarios run through the real HTTP API on the deterministic agent and on a free real model (Gemini). Results are in `evidence/eval_report.md`.
+3. **Automated evidence:** 104 pytest unit/API tests, a Playwright end-to-end test of S1 and 13 golden scenarios (S1–S13). The scenarios run through the real HTTP API on the deterministic agent and on a free real model (Gemini). Results are in `evidence/eval_report.md`.
 
 The core principle: **the LLM never makes a security decision.** It interprets intent, picks tools and explains results. Deterministic code computes every amount, assigns every tier and approves or blocks every action. Only a human, holding a token the model never sees, can release money.
 
@@ -53,7 +53,7 @@ The core principle: **the LLM never makes a security decision.** It interprets i
 | C8 | Explainable risk engine (0–100, weighted rules with reasons): amount vs history, velocity, new payee, first-time corridor, structuring, registry mismatch, restricted jurisdiction, unusual hour, injection source | `risk/engine.py` · `assess_payment()`, `assess_new_beneficiary()`, `assess_conversion()` |
 | C9 | Anti-structuring: the optimizer never splits a payment; it reroutes to a channel that supports the amount. Structuring patterns raise the risk score | `services/quotes.py` · `compare()`; `services/payments.py` · `plan()`; `risk/engine.py` · `_recent_payments_usd()` |
 | C10 | Prompt-injection defence: documents, tool outputs and RAG chunks are scanned and wrapped as untrusted data with neutralised delimiters | `security/injection.py` · `scan()`, `wrap_untrusted()`; `knowledge/retrieval.py` |
-| C11 | Invoice-fraud defence: payee details always come from the verified registry, never from document text. A mismatch is a hard block | `services/invoices.py` · `analyze()`, `draft_from_invoice()`; `services/beneficiaries.py` · `registry_check()` |
+| C11 | Invoice-fraud defence: **every attachment is reviewed by deterministic code before the model sees it** (the model cannot skip the check). If fraud is suspected, the money-moving tools are removed for that turn. Payee details always come from the verified registry, never from document text, and a registry mismatch is a hard block | `agent/orchestrator.py` · `run_turn()` (document pre-review); `services/invoices.py` · `analyze()`, `draft_from_invoice()`; `services/beneficiaries.py` · `registry_check()` |
 | C12 | Tool allowlist per detected intent, Pydantic schema validation of every call, ≤ 8 tool calls per turn | `agent/orchestrator.py` · `classify_groups()`, `run_turn()`; `agent/tools.py` · `schemas_for()`, `run_tool()` |
 | C13 | Deterministic guardrails before any LLM call (evasion, T4 governance, off-topic); output validation removes false "done" claims | `agent/guardrails.py` · `precheck()`, `validate_output()` |
 | C14 | Append-only SHA-256 hash-chained audit log, verify and export endpoints | `audit/log.py` · `append()`, `verify()`, `export()` |
@@ -89,7 +89,7 @@ The core principle: **the LLM never makes a security decision.** It interprets i
 | C7 limits | `test_policy.py::test_per_transaction_max_blocks`, `test_daily_soft_limit_escalates`, `test_large_payment_requires_step_up`, `test_insufficient_funds_blocks` | S8 |
 | C8 risk engine | `test_risk.py` (5 tests incl. `test_structuring_pattern_detected`, `test_score_is_capped_and_explained`) | S8, S9 |
 | C9 anti-structuring | `test_policy.py::test_requested_low_limit_provider_is_rerouted_not_split`; `test_agent.py::test_s8_refuses_split_and_reroutes` | S8 |
-| C10/C11 injection and fraud | `test_injection.py` (7 tests); `test_policy.py::test_registry_mismatch_is_blocked_as_fraud`; `test_agent.py::test_s7_injection_in_document_creates_no_action`, `test_poisoned_kb_chunk_is_sanitised_and_ignored` | S7 |
+| C10/C11 injection and fraud | `test_injection.py` (7 tests); `test_policy.py::test_registry_mismatch_is_blocked_as_fraud`; `test_agent.py::test_s7_injection_in_document_creates_no_action`, `test_poisoned_kb_chunk_is_sanitised_and_ignored`, `test_attachment_is_reviewed_deterministically_and_fraud_removes_money_tools`, `test_foreign_or_stale_invoice_id_is_replaced_by_own_open_invoice` | S7 |
 | C12 tool allowlist / schema / cap | `test_agent.py::test_unknown_tool_is_rejected`, `test_tool_outside_intent_allowlist_rejected`, `test_invalid_tool_arguments_rejected`, `test_max_tool_calls_cap` | — |
 | C13 guardrails / output validation | `test_agent.py::test_s12_evasion_refused`, `test_output_validation_blocks_false_done_claims`; `test_api.py::test_governance_request_is_refused_by_agent` | S10, S12 |
 | C14 audit chain | `test_audit.py::test_chain_verifies_after_activity`, `test_tampered_content_detected`, `test_deleted_entry_detected`, `test_rehashed_entry_breaks_next_link`; `test_api.py::test_audit_verify_and_export` | all (final `audit_valid` check) |
