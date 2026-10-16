@@ -1,0 +1,12 @@
+id: S11
+title: Send money to my landlord (missing amount)
+persona: rahim
+demonstrates: one clarifying question
+steps:
+  - say: "Send money to my landlord"
+    expect:
+      no_action: true
+      question_count: 1
+final:
+  no_money_moved: true
+  audit_valid: true

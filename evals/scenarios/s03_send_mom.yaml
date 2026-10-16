@@ -1,0 +1,16 @@
+id: S3
+title: Send 15,000 BDT to my mom (existing beneficiary, small)
+persona: rahim
+demonstrates: T2 confirm flow
+steps:
+  - say: "Send 15,000 BDT to my mom"
+    expect:
+      tools_include: [propose_payment]
+      action: {tier: T2, status: awaiting_confirmation}
+  - confirm: last
+    expect: {status: executed, receipt: true}
+final:
+  wallet_change: {BDT: negative}
+  transfer: {status_in: [pending, processing, settled], receive_amount: "15000.00", receive_currency: BDT}
+  ledger_balanced: true
+  audit_valid: true

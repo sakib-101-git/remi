@@ -1,0 +1,15 @@
+id: S5
+title: Just arrived in the UK with no credit history
+persona: rahim
+demonstrates: credit plan created, tasks tracked
+steps:
+  - say: "I just arrived in the UK and have no credit history"
+    expect:
+      tools_include_any: [create_credit_plan, get_credit_plan]
+      cards_include: [credit_plan]
+      no_action: true
+  - api: {method: POST, path: /api/credit/tasks/address_proof, body: {status: done}}
+    expect: {readiness_above: 0}
+final:
+  credit_tasks_saved: 8
+  audit_valid: true

@@ -46,7 +46,7 @@ def _recipient(text: str) -> str | None:
     for word in ("mom", "mum", "mother", "ammu", "dad", "father", "abbu", "landlord", "university", "college", "uni"):
         if re.search(rf"\b{word}\b", t):
             return word
-    m = re.search(r"\b(?:to|pay)\s+(?:my\s+)?([A-Z][\w'&.-]*(?:\s+[A-Z(][\w'&.)-]*){0,4})", text)
+    m = re.search(r"\b(?i:to|pay)\s+(?:(?i:my)\s+)?([A-Z][\w'&.-]*(?:\s+[A-Z(][\w'&.)-]*){0,4})", text)
     if m:
         name = re.sub(r"\s+(via|with|using|through|today|now|tomorrow|for|by|before)\b.*$", "", m.group(1)).strip(" .,")
         if name.lower() not in {"i", "me", "my", "remi"}:

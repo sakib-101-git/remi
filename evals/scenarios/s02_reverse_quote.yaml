@@ -1,0 +1,14 @@
+id: S2
+title: University must receive exactly £9,250 - how much BDT?
+persona: rahim
+demonstrates: reverse quote correctness
+steps:
+  - say: "My university must receive exactly £9,250 — how much BDT do I send?"
+    expect:
+      tools_include: [reverse_quote]
+      cards_include: [quotes]
+      no_action: true
+      reverse_quote_exact: {receive_amount: "9250.00", receive_currency: GBP, send_currency: BDT}
+final:
+  no_money_moved: true
+  audit_valid: true

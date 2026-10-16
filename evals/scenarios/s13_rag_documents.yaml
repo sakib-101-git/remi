@@ -1,0 +1,15 @@
+id: S13
+title: What documents do I usually need to pay tuition from abroad?
+persona: rahim
+demonstrates: RAG answer with [KB] citations and illustrative disclaimer
+steps:
+  - say: "What documents do I usually need to pay tuition from abroad?"
+    expect:
+      tools_include_any: [search_knowledge, get_compliance_checklist]
+      cards_include: [sources]
+      no_action: true
+      text_any: ["[KB:"]
+      text_any_2: ["illustrative", "Illustrative", "verify", "official"]
+final:
+  no_money_moved: true
+  audit_valid: true

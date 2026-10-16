@@ -1,0 +1,15 @@
+id: S4
+title: How am I doing this month? How long will my money last?
+persona: rahim
+demonstrates: multi-currency budget, runway, 3 actionable tips
+steps:
+  - say: "How am I doing this month? How long will my money last?"
+    expect:
+      tools_include_any: [get_budget_summary, get_runway]
+      cards_include_any: [budget, runway]
+      no_action: true
+      budget_recommendations: 3
+      text_any: ["runway", "Runway", "last", "until"]
+final:
+  no_money_moved: true
+  audit_valid: true

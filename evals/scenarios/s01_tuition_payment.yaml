@@ -1,0 +1,20 @@
+id: S1
+title: Pay £9,250 tuition before the deadline, cheapest safe way
+persona: rahim
+demonstrates: quotes compared → recommendation with explanation → confirmation card → executed → receipt; ledger updated
+steps:
+  - say: "Pay my £9,250 tuition before the deadline, cheapest safe way"
+    expect:
+      tools_include: [propose_payment]
+      cards_include: [quotes, action]
+      action: {tier: T2, status: awaiting_confirmation, provider_id: campus_pay}
+      text_any: ["Campus Pay"]
+  - confirm: last
+    expect: {status: executed, receipt: true}
+  - advance_hours: 120
+final:
+  wallet_change: {BDT: negative}
+  transfer: {provider: campus_pay, status: settled, receive_amount: "9250.00", receive_currency: GBP}
+  invoice_paid: true
+  ledger_balanced: true
+  audit_valid: true

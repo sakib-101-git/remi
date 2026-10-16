@@ -1,0 +1,20 @@
+id: S6
+title: Tell me when GBP/BDT is better than X, then convert 500
+persona: rahim
+demonstrates: alert set → rate tick → real-time notification → proposal → confirm
+steps:
+  - say: "Tell me when GBP/BDT is better than 163.5, then convert 500 GBP"
+    expect:
+      tools_include: [set_rate_alert]
+      cards_include: [alert]
+      no_action: true
+  - tick: {steps: 1}
+    expect: {alert_fired: false}
+  - tick: {shock_currency: GBP, shock_pct: "0.01"}
+    expect: {alert_fired: true, proposal_tier: T2}
+  - confirm: alert
+    expect: {status: executed}
+final:
+  wallet_change: {GBP: "+500.00", BDT: negative}
+  ledger_balanced: true
+  audit_valid: true

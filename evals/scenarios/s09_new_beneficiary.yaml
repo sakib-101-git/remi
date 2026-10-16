@@ -1,0 +1,27 @@
+id: S9
+title: Pay a brand-new beneficiary
+persona: rahim
+demonstrates: "T3: step-up + cooling-off"
+steps:
+  - say: "Add my new landlord Oak Street Rooms (demo), account GB00SBUK40001112223334 at Sandbox Bank UK"
+    expect:
+      tools_include: [propose_add_beneficiary]
+      action: {tier: T3, status: awaiting_confirmation}
+  - confirm: last
+    expect: {status: awaiting_step_up}
+  - stepup: last
+    expect: {status: executed}
+  - say: "Pay Oak Street Rooms £300"
+    expect:
+      tools_include: [propose_payment]
+      action: {tier: T3, status: awaiting_confirmation, cooling_off: true}
+  - confirm: last
+    expect: {status: awaiting_step_up}
+  - stepup: last
+    expect: {status: scheduled}
+  - advance_hours: 1
+    expect: {action_status: executed}
+final:
+  wallet_change: {GBP: negative}
+  audit_has: [action.scheduled, stepup.passed]
+  audit_valid: true
