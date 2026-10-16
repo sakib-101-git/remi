@@ -103,8 +103,9 @@ async def _ratelimit(_: Request, exc: RateLimitExceeded) -> JSONResponse:
     return JSONResponse({"error": "Too many requests - slow down a little (sandbox rate limit).", "detail": str(exc.detail)}, status_code=429)
 
 
-if FRONTEND_DIST.exists():
-    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
+if (FRONTEND_DIST / "index.html").is_file():
+    if (FRONTEND_DIST / "assets").is_dir():
+        app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
 
     @app.get("/{path:path}", include_in_schema=False)
     def spa(path: str) -> FileResponse:
@@ -112,3 +113,11 @@ if FRONTEND_DIST.exists():
         if path and target.is_file() and FRONTEND_DIST.resolve() in target.parents:
             return FileResponse(target)
         return FileResponse(FRONTEND_DIST / "index.html")
+else:
+
+    @app.get("/", include_in_schema=False)
+    def no_frontend() -> JSONResponse:
+        return JSONResponse(
+            {"error": "Frontend not built. Run ./scripts/start.sh (it builds frontend/dist) or use ./scripts/dev.sh and open http://localhost:5173."},
+            status_code=503,
+        )
