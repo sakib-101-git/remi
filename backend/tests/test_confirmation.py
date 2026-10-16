@@ -120,3 +120,11 @@ def test_settlement_lifecycle(ctx):
     assert txn.status == "pending"
     controls.advance_time(ctx, 24 * 7)
     assert txn.status == "settled"
+
+
+def test_reissue_invalidates_old_token(ctx):
+    action, old = propose_payment(ctx, "mom", "15000", "BDT")
+    fresh = actions.reissue_token(ctx, action.id)["confirm_token"]
+    with pytest.raises(PolicyViolation):
+        actions.confirm(ctx, action.id, old)
+    assert actions.confirm(ctx, action.id, fresh)["status"] == "executed"

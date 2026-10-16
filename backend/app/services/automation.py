@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..audit import log as audit
-from ..money import rate_display
+from ..money import plain, rate_display
 from ..policy import actions
 from ..sandbox import fx
 from . import alerts, conversions, payments, wallets
@@ -17,7 +17,7 @@ def on_rates_changed(ctx: Ctx) -> list[dict[str, Any]]:
     for alert in alerts.check(ctx):
         rate_text = rate_display(alert.base, alert.quote, alert.triggered_rate)
         audit.append(ctx.session, ctx.ws_id, "system", "alert.triggered", tool="set_rate_alert", tier="T1",
-                     inputs={"alert_id": alert.id, "pair": f"{alert.base}/{alert.quote}", "target": str(alert.target_rate)},
+                     inputs={"alert_id": alert.id, "pair": f"{alert.base}/{alert.quote}", "target": plain(alert.target_rate)},
                      decision="triggered", result={"rate": str(alert.triggered_rate)})
         card: dict[str, Any] | None = None
         if alert.convert_amount and not ctx.ws.agent_paused:
@@ -27,7 +27,7 @@ def on_rates_changed(ctx: Ctx) -> list[dict[str, Any]]:
                 card = {"error": str(exc)}
         ctx.notify(
             "rate_alert",
-            f"Rate alert hit: {alert.base}/{alert.quote} {alert.direction} {alert.target_rate}",
+            f"Rate alert hit: {alert.base}/{alert.quote} {alert.direction} {plain(alert.target_rate)}",
             f"Now {rate_text}." + (" Remi prepared a conversion for you to review." if card and "id" in card else ""),
             {"alert": alerts.to_dict(alert), "action": card},
         )
@@ -43,7 +43,7 @@ def _propose_alert_conversion(ctx: Ctx, alert: Any) -> dict[str, Any]:
     from_ccy, to_ccy = (other, ccy) if other in held else (ccy, other)
     kwargs = {"buy_amount": alert.convert_amount} if to_ccy == ccy else {"sell_amount": alert.convert_amount}
     q = conversions.quote(ctx, from_ccy, to_ccy, **kwargs)
-    summary = conversion_summary(q, trigger=f"Rate alert {alert.base}/{alert.quote} {alert.direction} {alert.target_rate}")
+    summary = conversion_summary(q, trigger=f"Rate alert {alert.base}/{alert.quote} {alert.direction} {plain(alert.target_rate)}")
     action, token = actions.propose(ctx, "fx_conversion", q, summary, created_by="agent")
     alert.proposal_id = action.id
     return actions.public(ctx, action, token)

@@ -202,7 +202,7 @@ export default function Chat() {
   const suggestions = SUGGESTIONS[persona] ?? SUGGESTIONS.rahim;
 
   return (
-    <div className="-my-6 flex h-[calc(100vh-4rem-41px)] flex-col">
+    <div className="-my-6 flex h-[calc(100dvh-4rem)] flex-col">
       <div ref={scrollRef} className="scrollbar-thin flex-1 overflow-y-auto py-6">
         <div className="mx-auto max-w-3xl space-y-6">
           {loaded && messages.length === 0 && (
@@ -242,7 +242,7 @@ export default function Chat() {
             />
             <Button type="submit" data-testid="chat-send" disabled={!input.trim()} loading={busy} className="h-10 w-10 !px-0" aria-label="Send">{!busy && <ArrowUp className="h-4 w-4" />}</Button>
           </form>
-          <p className="text-muted mt-2 text-center text-[11px]">Remi can make mistakes in wording, but every number comes from sandbox tools and nothing moves without your confirmation.</p>
+          <p className="text-muted mt-2 text-center text-[11px]">Sandbox demo · not financial advice. Every number comes from sandbox tools; nothing moves without your confirmation.</p>
         </div>
       </div>
       <AttachModal open={attachOpen} onClose={() => setAttachOpen(false)} onAttach={(t) => { setAttachment(t); setAttachOpen(false); }} />

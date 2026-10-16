@@ -31,16 +31,25 @@ class Ctx:
         self.outbox.append((event, data))
 
     def notify(self, kind: str, title: str, body: str = "", data: dict[str, Any] | None = None) -> Notification:
-        n = Notification(workspace_id=self.ws_id, user_id=self.user.id, kind=kind, title=title, body=body, data=data or {})
+        # Confirmation tokens may ride on the live SSE event to the user's own browser, but are never persisted.
+        n = Notification(workspace_id=self.ws_id, user_id=self.user.id, kind=kind, title=title, body=body, data=_strip_tokens(data or {}))
         self.session.add(n)
         self.session.flush()
-        self.emit("notification", {"id": n.id, "kind": kind, "title": title, "body": body, "data": n.data})
+        self.emit("notification", {"id": n.id, "kind": kind, "title": title, "body": body, "data": data or {}})
         return n
 
     def flush(self) -> None:
         for event, data in self.outbox:
             events.publish(self.ws_id, event, data)
         self.outbox.clear()
+
+
+def _strip_tokens(obj: Any) -> Any:
+    if isinstance(obj, dict):
+        return {k: _strip_tokens(v) for k, v in obj.items() if k != "confirm_token"}
+    if isinstance(obj, list):
+        return [_strip_tokens(v) for v in obj]
+    return obj
 
 
 def load_ctx(session: Session, workspace_id: str) -> Ctx:

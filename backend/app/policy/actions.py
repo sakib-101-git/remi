@@ -210,6 +210,24 @@ def _add_beneficiary(ctx: Ctx, a: PendingAction) -> dict[str, Any]:
     return {"status": "executed", "beneficiary_id": b.id, "active_after": b.active_after.isoformat(timespec="seconds"), "cooling_off_seconds": int(cooling.total_seconds())}
 
 
+def reissue_token(ctx: Ctx, action_id: str) -> dict[str, Any]:
+    """Human UI only: mint a fresh single-use token (old one is invalidated) after re-running policy."""
+    a = _get(ctx, action_id)
+    if a.status not in ("awaiting_confirmation", "expired") or a.token_used:
+        raise PolicyViolation(f"Action is {a.status}; nothing to confirm")
+    decision = _evaluate(ctx, a.kind, a.payload, None)
+    if decision.blocked:
+        a.status, a.policy_reasons = "blocked", decision.block_reasons
+        ctx.emit("action", public(ctx, a))
+        raise PolicyViolation("Blocked: " + "; ".join(decision.block_reasons))
+    if a.kind != "add_beneficiary":
+        a.tier, a.requires_step_up = decision.tier, decision.requires_step_up
+    token, token_hash, expires = tokens.issue_token(a.id, a.payload_hash, now(ctx.ws))
+    a.token_hash, a.token_expires_at, a.status = token_hash, expires, "awaiting_confirmation"
+    audit.append(ctx.session, ctx.ws_id, "user", "action.token_reissued", tier=a.tier, inputs={"action_id": a.id}, decision="reissued")
+    return public(ctx, a, token)
+
+
 def cancel(ctx: Ctx, action_id: str, actor: str = "user") -> dict[str, Any]:
     a = _get(ctx, action_id)
     if a.status not in OPEN_STATES:

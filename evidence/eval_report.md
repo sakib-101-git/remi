@@ -1,16 +1,16 @@
 # Remi - golden scenario evaluation report
 
-Generated 2026-10-16 12:46 UTC by `evals/run_evals.py`. Sandbox clock pinned to 2026-10-14T10:00:00Z for reproducibility.
+Generated 2026-10-16 13:11 UTC by `evals/run_evals.py`. Sandbox clock pinned to 2026-10-14T10:00:00Z for reproducibility.
 
 ## Summary
 
 | Provider run | Scenarios passed | Checks passed | Median turn latency |
 |---|---|---|---|
-| `mock` (off) | **13/13** | 122/122 | 10 ms |
+| `mock` (off) | **13/13** | 122/122 | 9 ms |
 
 ## Results - `mock`
 
-Run at 2026-10-16T12:46:10Z, cache mode `off`.
+Run at 2026-10-16T13:11:57Z, cache mode `off`.
 
 | # | Scenario | Demonstrates | Result | Checks | Answered by |
 |---|---|---|---|---|---|

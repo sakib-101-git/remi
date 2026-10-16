@@ -44,7 +44,7 @@ const KIND_ICON = { payment: ArrowRightLeft, fx_conversion: ArrowRightLeft, add_
 export function ActionCard({ initial }: { initial: ActionData }) {
   const { liveEvents, setPhoneOpen, pushToast, bump } = useStore();
   const [action, setAction] = useState<ActionData>(initial);
-  const [token] = useState<string | null | undefined>(initial.confirm_token);
+  const [token, setToken] = useState<string | null | undefined>(initial.confirm_token);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [code, setCode] = useState("");
@@ -103,6 +103,20 @@ export function ActionCard({ initial }: { initial: ActionData }) {
         if (out.status === "executed") pushToast({ kind: "executed", title: "Verified and executed", body: s.title });
       }
       bump();
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function reissue() {
+    setBusy(true);
+    setError(null);
+    try {
+      const out = await api.post<any>(`/actions/${action.id}/reissue`);
+      setToken(out.confirm_token);
+      setAction((a) => ({ ...a, ...out }));
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -239,10 +253,13 @@ export function ActionCard({ initial }: { initial: ActionData }) {
             </div>
           </div>
         )}
-        {action.status === "awaiting_confirmation" && !token && !expired && (
-          <p className="text-muted mt-3 text-xs">Open the latest card in the chat to confirm (tokens are only shown once).</p>
+        {(action.status === "awaiting_confirmation" || action.status === "expired" || expired) && !(token && !expired) && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <Button variant="outline" onClick={reissue} loading={busy}><Lock className="h-4 w-4" /> {expired || action.status === "expired" ? "Re-check & refresh approval" : "Review & approve"}</Button>
+            <Button variant="ghost" onClick={cancel} disabled={busy || action.status === "expired"}>Cancel</Button>
+            <span className="text-muted text-[11px]">Policy is re-checked and a fresh single-use token is issued to this screen only.</span>
+          </div>
         )}
-        {expired && <p className="text-muted mt-3 text-xs">This proposal expired (5 minutes). Ask Remi again for a fresh quote.</p>}
 
         {action.status === "awaiting_step_up" && (
           <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/5 p-3">

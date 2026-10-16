@@ -41,6 +41,7 @@ type Store = {
   askRemi: (message: string, opts?: { attachment?: string; autoSend?: boolean }) => void;
   consumeDraft: () => void;
   liveEvents: { event: string; data: any; at: number }[];
+  tokenCards: Record<string, any>;
   connected: boolean;
   theme: "light" | "dark";
   toggleTheme: () => void;
@@ -65,6 +66,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [kbSlug, setKbSlug] = useState<string | null>(null);
   const [chatDraft, setChatDraft] = useState<Store["chatDraft"]>(null);
   const [liveEvents, setLiveEvents] = useState<Store["liveEvents"]>([]);
+  const [tokenCards, setTokenCards] = useState<Record<string, any>>({});
   const [connected, setConnected] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">(document.documentElement.classList.contains("dark") ? "dark" : "light");
   const toastId = useRef(1);
@@ -127,6 +129,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           setPhoneOpen(true);
         } else if (event === "notification") {
           pushToast({ kind: data.kind, title: data.title, body: data.body, data: data.data });
+          const act = data.data?.action;
+          if (act?.id && act.confirm_token) setTokenCards((prev) => ({ ...prev, [act.id]: act }));
         } else if (event === "settings") {
           setSession((s) => (s ? { ...s, agent_paused: data.agent_paused } : s));
         } else if (event === "clock") {
@@ -180,6 +184,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       consumeDraft: () => setChatDraft(null),
       liveEvents,
+      tokenCards,
       connected,
       theme,
       toggleTheme: () => {
@@ -193,7 +198,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setTheme(next);
       },
     }),
-    [session, loading, error, refreshSession, route, navigate, version, bump, toasts, pushToast, phone, phoneOpen, kbSlug, chatDraft, liveEvents, connected, theme],
+    [session, loading, error, refreshSession, route, navigate, version, bump, toasts, pushToast, phone, phoneOpen, kbSlug, chatDraft, liveEvents, tokenCards, connected, theme],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

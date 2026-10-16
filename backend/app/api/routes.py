@@ -368,6 +368,12 @@ def stepup_action(action_id: str, body: StepUpIn, request: Request, response: Re
     return JSONResponse(out, status_code=409 if out.get("status") == "rejected" else 200)
 
 
+@router.post("/actions/{action_id}/reissue")
+def reissue_action(action_id: str, request: Request, response: Response) -> dict[str, Any]:
+    with uow(request, response) as ctx:
+        return actions.reissue_token(ctx, action_id)
+
+
 @router.post("/actions/{action_id}/cancel")
 def cancel_action(action_id: str, request: Request, response: Response) -> dict[str, Any]:
     with uow(request, response) as ctx:

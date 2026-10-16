@@ -260,14 +260,14 @@ export function Onboarding() {
 
 export function Shell({ children }: { children: ReactNode }) {
   const [menu, setMenu] = useState(false);
-  const { session } = useStore();
+  const { session, route } = useStore();
   return (
     <div className="min-h-full">
       <Sidebar open={menu} onClose={() => setMenu(false)} />
       <div className="flex min-h-screen flex-col lg:pl-64">
         <Topbar onMenu={() => setMenu(true)} />
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">{children}</main>
-        <footer className="text-muted border-t border-soft px-6 py-3 text-center text-[11px]">
+        <footer className={cx("text-muted border-t border-soft px-6 py-3 text-center text-[11px]", route === "chat" && "hidden")}>
           {session?.disclaimer ?? "Sandbox demo. Not financial, legal or tax advice."} All people, banks, providers and universities are fictional. · Team Git Push Pray · FinTechathon 2026
         </footer>
       </div>

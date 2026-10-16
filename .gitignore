@@ -37,3 +37,4 @@ frontend/playwright-report/
 .idea/
 .DS_Store
 frontend/*.tmp.mjs
+frontend/.e2e-data/

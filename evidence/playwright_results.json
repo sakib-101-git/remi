@@ -1,0 +1,153 @@
+{
+  "config": {
+    "argv": [
+      "/home/sakib/.nvm/versions/node/v24.22.0/bin/node",
+      "/home/sakib/projects/remi/frontend/node_modules/.bin/playwright",
+      "test"
+    ],
+    "configFile": "/home/sakib/projects/remi/frontend/playwright.config.ts",
+    "rootDir": "/home/sakib/projects/remi/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/sakib/projects/remi/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/sakib/projects/remi/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/sakib/projects/remi/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/sakib/projects/remi/frontend/e2e",
+        "snapshotDir": "/home/sakib/projects/remi/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://localhost:8765",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../evidence/playwright_results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 6,
+    "webServer": {
+      "command": "rm -rf .e2e-data && DATA_DIR=.e2e-data LLM_PROVIDER=mock LLM_FALLBACK=mock LLM_CACHE=off DEMO_SETTLE_SECONDS=3 KB_USE_EMBEDDINGS=false ../backend/.venv/bin/uvicorn app.main:app --app-dir ../backend --port 8765",
+      "url": "http://localhost:8765/api/health",
+      "reuseExistingServer": false,
+      "timeout": 60000
+    }
+  },
+  "suites": [
+    {
+      "title": "s1_tuition.spec.ts",
+      "file": "s1_tuition.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S1: pay £9,250 tuition end to end",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6221,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-16T13:09:31.592Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "289bb9f61c4e6a775df7-2aff1366a9bc7917dedf",
+          "file": "s1_tuition.spec.ts",
+          "line": 4,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-16T13:09:30.255Z",
+    "duration": 7656.728,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

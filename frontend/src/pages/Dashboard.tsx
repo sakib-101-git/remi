@@ -8,7 +8,7 @@ import { Badge, Button, Card, CardHeader, Empty, ErrorNote, Meter, Skeleton, Sta
 const FLAG_CCY: Record<string, string> = { BDT: "Bangladeshi taka", GBP: "British pound", USD: "US dollar", CAD: "Canadian dollar", NGN: "Nigerian naira", INR: "Indian rupee" };
 
 export default function Dashboard() {
-  const { session, askRemi, navigate } = useStore();
+  const { session, askRemi, navigate, tokenCards } = useStore();
   const { data, error, loading, reload } = useApi<any>("/dashboard");
   if (error) return <ErrorNote message={error} onRetry={reload} />;
   const first = session?.user.name.split(" ")[0];
@@ -31,7 +31,7 @@ export default function Dashboard() {
       {data?.open_actions?.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm font-medium"><ShieldCheck className="h-4 w-4 text-amber-500" /> Waiting for your approval</div>
-          <div className="grid gap-3 lg:grid-cols-2">{data.open_actions.map((a: any) => <ActionCard key={a.id} initial={a} />)}</div>
+          <div className="grid gap-3 lg:grid-cols-2">{data.open_actions.map((a: any) => <ActionCard key={`${a.id}-${tokenCards[a.id] ? "t" : "n"}`} initial={tokenCards[a.id] ? { ...a, confirm_token: tokenCards[a.id].confirm_token } : a} />)}</div>
         </div>
       )}
 

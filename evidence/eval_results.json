@@ -2,7 +2,7 @@
  "mock": {
   "provider": "mock",
   "cache": "off",
-  "run_at": "2026-10-16T12:46:10Z",
+  "run_at": "2026-10-16T13:11:57Z",
   "results": [
    {
     "id": "S1",
@@ -67,7 +67,7 @@
       "check": "receipt issued with reference",
       "ok": true,
       "detail": {
-       "reference": "RMI-20261014-ADCC89",
+       "reference": "RMI-20261014-16D6B6",
        "status": "pending",
        "executed_at": "2026-10-14T10:00:00+00:00",
        "provider": "Campus Pay (sandbox)",
@@ -94,7 +94,7 @@
       "check": "final: transfer recorded {'provider': 'campus_pay', 'status': 'settled', 'receive_amount': '9250.00', 'receive_currency': 'GBP'}",
       "ok": true,
       "detail": {
-       "id": "28a81f9552c94ac0",
+       "id": "683de38d7dfd47bd",
        "kind": "transfer_out",
        "status": "settled",
        "occurred_at": "2026-10-14T10:00:00+00:00",
@@ -106,7 +106,7 @@
        "counter_amount": "9250.00",
        "counter_currency": "GBP",
        "provider": "campus_pay",
-       "reference": "RMI-20261014-ADCC89",
+       "reference": "RMI-20261014-16D6B6",
        "expected_arrival": "2026-10-19T10:00:00+00:00",
        "beneficiary": "Northbridge University (demo)",
        "beneficiary_account": "\u2022\u2022\u2022\u20227890"
@@ -123,7 +123,7 @@
       "detail": {
        "valid": true,
        "entries": 9,
-       "head": "c51f8753cdb8a6f543846b2de0cf7b0c01e6aa88ac1c7fdbde38abdd41257d19",
+       "head": "7950c40ef5ff982737cf4cd8f58d67f8ea8f47b01340f7d56fc61a8fad9dad1b",
        "broken_at": null,
        "reason": null
       }
@@ -147,7 +147,7 @@
     "turn_latency_ms": [
      23
     ],
-    "duration_s": 0.27,
+    "duration_s": 0.23,
     "error": null
    },
    {
@@ -222,7 +222,7 @@
       "detail": {
        "valid": true,
        "entries": 5,
-       "head": "91a678fa38d9f9c24d1a7fa2f3a85edda905b1707653244944a6c1d72429e0b4",
+       "head": "1523d5c4f4a1044f2ba7ec240bf9475764695a49f7037d9d9b8b7887eda6e9a8",
        "broken_at": null,
        "reason": null
       }
@@ -280,7 +280,7 @@
       "check": "receipt issued with reference",
       "ok": true,
       "detail": {
-       "reference": "RMI-20261014-0AD846",
+       "reference": "RMI-20261014-42FB2B",
        "status": "pending",
        "executed_at": "2026-10-14T10:00:00+00:00",
        "provider": "Beta Express (sandbox)",
@@ -307,7 +307,7 @@
       "check": "final: transfer recorded {'status_in': ['pending', 'processing', 'settled'], 'receive_amount': '15000.00', 'receive_currency': 'BDT'}",
       "ok": true,
       "detail": {
-       "id": "f4833d5639124490",
+       "id": "4307594f1df44270",
        "kind": "transfer_out",
        "status": "pending",
        "occurred_at": "2026-10-14T10:00:00+00:00",
@@ -319,7 +319,7 @@
        "counter_amount": "15000.00",
        "counter_currency": "BDT",
        "provider": "beta_express",
-       "reference": "RMI-20261014-0AD846",
+       "reference": "RMI-20261014-42FB2B",
        "expected_arrival": "2026-10-14T14:00:00+00:00",
        "beneficiary": "Ayesha Rahman",
        "beneficiary_account": "\u2022\u2022\u2022\u20224756"
@@ -331,7 +331,7 @@
       "detail": {
        "valid": true,
        "entries": 7,
-       "head": "f2739f099ec250ccfc4624dfa9baa504b5eb0e4bf788d745a99ef8dc18e9214b",
+       "head": "62c8b732bf5b0c0929edc86593e18360393aabb094f037b435be20574a99b4ed",
        "broken_at": null,
        "reason": null
       }
@@ -412,7 +412,7 @@
       "detail": {
        "valid": true,
        "entries": 5,
-       "head": "3d9c02a9635d55e2dab4579a2ae00b5672aece07d2b19b51cfd459494a8be762",
+       "head": "0d7926777873f018e8f104b7fda3032467dddee3afe9e09a068269a1f0da89f9",
        "broken_at": null,
        "reason": null
       }
@@ -422,9 +422,9 @@
      "mock/remi-mock-1"
     ],
     "turn_latency_ms": [
-     13
+     12
     ],
-    "duration_s": 0.12,
+    "duration_s": 0.11,
     "error": null
    },
    {
@@ -472,7 +472,7 @@
       "detail": {
        "valid": true,
        "entries": 6,
-       "head": "99983e170c18292ec692b8bcb83d457772e4d97b3a31341ed289044f41376292",
+       "head": "9c0baf50fd726e14555284f8363fc0046378585f7942c8b918e999942e922c94",
        "broken_at": null,
        "reason": null
       }
@@ -482,9 +482,9 @@
      "mock/remi-mock-1"
     ],
     "turn_latency_ms": [
-     11
+     10
     ],
-    "duration_s": 0.13,
+    "duration_s": 0.12,
     "error": null
    },
    {
@@ -527,44 +527,44 @@
       "detail": [
        {
         "alert": {
-         "id": "49909040153b4294",
+         "id": "883f4ffc289044bc",
          "pair": "GBP/BDT",
          "direction": "below",
          "target_rate": "163.5",
          "convert_amount": "500",
          "convert_currency": "GBP",
          "status": "triggered",
-         "triggered_rate": "161.915",
-         "proposal_id": "87616a41caf44a3b"
+         "triggered_rate": "163.1512",
+         "proposal_id": "a1db3c382f0142e2"
         },
         "action": {
-         "id": "87616a41caf44a3b",
+         "id": "a1db3c382f0142e2",
          "kind": "fx_conversion",
          "status": "awaiting_confirmation",
          "tier": "T2",
          "summary": {
           "title": "Convert BDT \u2192 GBP",
-          "you_sell": "81241.83 BDT",
+          "you_sell": "81862.11 BDT",
           "you_get": "500.00 GBP",
-          "rate": "1 GBP = 162.4837 BDT",
-          "mid_rate": "1 GBP = 161.9150 BDT",
-          "cost_vs_mid": "284.35 BDT",
+          "rate": "1 GBP = 163.7242 BDT",
+          "mid_rate": "1 GBP = 163.1512 BDT",
+          "cost_vs_mid": "286.52 BDT",
           "fee": "0",
           "provider": "Remi wallet conversion (sandbox)",
-          "amount_usd": "665.69",
-          "trigger": "Rate alert GBP/BDT below 163.5000000000"
+          "amount_usd": "668.14",
+          "trigger": "Rate alert GBP/BDT below 163.5"
          },
          "payload": {
           "from_currency": "BDT",
           "to_currency": "GBP",
-          "sell_amount": "81241.83",
+          "sell_amount": "81862.11",
           "buy_amount": "500.00",
-          "mid_rate": "0.0061760815",
-          "offered_rate": "0.0061544652",
+          "mid_rate": "0.0061292846",
+          "offered_rate": "0.0061078321",
           "markup_pct": "0.35",
           "fee": "0",
-          "cost_vs_mid": "284.35",
-          "amount_usd": "665.69",
+          "cost_vs_mid": "286.52",
+          "amount_usd": "668.14",
           "provider": "Remi wallet conversion (sandbox)",
           "rate_timestamp": "2026-10-14T10:00:00+00:00",
           "rates_label": "sandbox rates"
@@ -577,7 +577,7 @@
          "expires_at": "2026-10-14T10:05:00+00:00",
          "created_at": "2026-10-14T10:00:00+00:00",
          "result": {},
-         "confirm_token": "z0sAC970rw-T-pJTGfOatHQetMRhpKBk6A_371WHFbk"
+         "confirm_token": "_dxwNxRd57_IVEJeIMY4ctA2slWvB1Tb_eJboHTgJQo"
         }
        }
       ]
@@ -586,33 +586,33 @@
       "check": "alert proposal tier T2 awaiting confirmation",
       "ok": true,
       "detail": {
-       "id": "87616a41caf44a3b",
+       "id": "a1db3c382f0142e2",
        "kind": "fx_conversion",
        "status": "awaiting_confirmation",
        "tier": "T2",
        "summary": {
         "title": "Convert BDT \u2192 GBP",
-        "you_sell": "81241.83 BDT",
+        "you_sell": "81862.11 BDT",
         "you_get": "500.00 GBP",
-        "rate": "1 GBP = 162.4837 BDT",
-        "mid_rate": "1 GBP = 161.9150 BDT",
-        "cost_vs_mid": "284.35 BDT",
+        "rate": "1 GBP = 163.7242 BDT",
+        "mid_rate": "1 GBP = 163.1512 BDT",
+        "cost_vs_mid": "286.52 BDT",
         "fee": "0",
         "provider": "Remi wallet conversion (sandbox)",
-        "amount_usd": "665.69",
-        "trigger": "Rate alert GBP/BDT below 163.5000000000"
+        "amount_usd": "668.14",
+        "trigger": "Rate alert GBP/BDT below 163.5"
        },
        "payload": {
         "from_currency": "BDT",
         "to_currency": "GBP",
-        "sell_amount": "81241.83",
+        "sell_amount": "81862.11",
         "buy_amount": "500.00",
-        "mid_rate": "0.0061760815",
-        "offered_rate": "0.0061544652",
+        "mid_rate": "0.0061292846",
+        "offered_rate": "0.0061078321",
         "markup_pct": "0.35",
         "fee": "0",
-        "cost_vs_mid": "284.35",
-        "amount_usd": "665.69",
+        "cost_vs_mid": "286.52",
+        "amount_usd": "668.14",
         "provider": "Remi wallet conversion (sandbox)",
         "rate_timestamp": "2026-10-14T10:00:00+00:00",
         "rates_label": "sandbox rates"
@@ -625,7 +625,7 @@
        "expires_at": "2026-10-14T10:05:00+00:00",
        "created_at": "2026-10-14T10:00:00+00:00",
        "result": {},
-       "confirm_token": "z0sAC970rw-T-pJTGfOatHQetMRhpKBk6A_371WHFbk"
+       "confirm_token": "_dxwNxRd57_IVEJeIMY4ctA2slWvB1Tb_eJboHTgJQo"
       }
      },
      {
@@ -641,7 +641,7 @@
      {
       "check": "final: BDT wallet change negative",
       "ok": true,
-      "detail": "-81241.83"
+      "detail": "-81862.11"
      },
      {
       "check": "final: audit hash chain verifies",
@@ -649,7 +649,7 @@
       "detail": {
        "valid": true,
        "entries": 11,
-       "head": "582e677b45f64e11e7a544a0f77d85762c91e552191787dcf2c80826fd9e1c8e",
+       "head": "5bc8599509929176d8c1f6a4882990e51ca69fcb595569b6bae03039aecfc9c3",
        "broken_at": null,
        "reason": null
       }
@@ -673,7 +673,7 @@
     "turn_latency_ms": [
      7
     ],
-    "duration_s": 0.13,
+    "duration_s": 0.12,
     "error": null
    },
    {
@@ -730,7 +730,7 @@
       "detail": {
        "valid": true,
        "entries": 7,
-       "head": "bd4d2b7bc9c810e06a5d8e14b0da7a19cd44f83112bf1acdfcc8b317befd964c",
+       "head": "c2f3efc424d54cb23b365263fa23c51980c33471c4c3ddc0547e60221e8cccc8",
        "broken_at": null,
        "reason": null
       }
@@ -809,7 +809,7 @@
      {
       "check": "OTP delivered to sandbox phone",
       "ok": true,
-      "detail": "0e2e8e56e4b845ed"
+      "detail": "87715ed0ee164404"
      },
      {
       "check": "status = executed",
@@ -825,7 +825,7 @@
       "check": "final: transfer recorded {'provider': 'bank_wire', 'receive_amount': '800000.00', 'receive_currency': 'BDT', 'status_in': ['pending', 'processing', 'settled']}",
       "ok": true,
       "detail": {
-       "id": "50186eee054b4916",
+       "id": "38e6050348164a7a",
        "kind": "transfer_out",
        "status": "pending",
        "occurred_at": "2026-10-14T10:00:00+00:00",
@@ -837,7 +837,7 @@
        "counter_amount": "800000.00",
        "counter_currency": "BDT",
        "provider": "bank_wire",
-       "reference": "RMI-20261014-0E2E8E",
+       "reference": "RMI-20261014-87715E",
        "expected_arrival": "2026-10-21T10:00:00+00:00",
        "beneficiary": "Karim Rahman",
        "beneficiary_account": "\u2022\u2022\u2022\u20222910"
@@ -849,7 +849,7 @@
       "detail": {
        "valid": true,
        "entries": 9,
-       "head": "42529b356e395fb4898565545380b4eb882db036353543ab5bab414d6b714f73",
+       "head": "013494348504896455be36c6d55e55c9e6da6c58268566c6e4e727ce2e468039",
        "broken_at": null,
        "reason": null
       }
@@ -918,7 +918,7 @@
      {
       "check": "OTP delivered to sandbox phone",
       "ok": true,
-      "detail": "8c7ea61f0e744368"
+      "detail": "02e5643df2cb4af7"
      },
      {
       "check": "status = executed",
@@ -966,7 +966,7 @@
      {
       "check": "OTP delivered to sandbox phone",
       "ok": true,
-      "detail": "31be2b4001bf42a0"
+      "detail": "5b3a7370c2df463d"
      },
      {
       "check": "status = scheduled",
@@ -989,7 +989,7 @@
       "detail": {
        "valid": true,
        "entries": 18,
-       "head": "ba28973c477f647aa95d01bc579d66616a4a69936e62bce0af9896c3a99191bb",
+       "head": "62399c1f480c7fcf0ff458a329a1fd983308e5d8044fe188be014fc441d76e58",
        "broken_at": null,
        "reason": null
       }
@@ -1009,10 +1009,10 @@
      "mock/remi-mock-1"
     ],
     "turn_latency_ms": [
-     10,
-     11
+     7,
+     10
     ],
-    "duration_s": 0.15,
+    "duration_s": 0.14,
     "error": null
    },
    {
@@ -1058,7 +1058,7 @@
       "detail": {
        "valid": true,
        "entries": 5,
-       "head": "4666b68b402ad2223d9e597745a5089585de202f934f9027075b01c7e9307adb",
+       "head": "8ed00c8ffb1cf9d6aaf11492d0a3abd789217df38ca29140675d44af7db2cb72",
        "broken_at": null,
        "reason": null
       }
@@ -1073,9 +1073,9 @@
      "guardrail/deterministic"
     ],
     "turn_latency_ms": [
-     5
+     6
     ],
-    "duration_s": 0.12,
+    "duration_s": 0.11,
     "error": null
    },
    {
@@ -1112,7 +1112,7 @@
       "detail": {
        "valid": true,
        "entries": 4,
-       "head": "ae2896f2d28416ce3cd631d07c47f082865d2bf94c7d9bd6bf194222feb9d136",
+       "head": "23a591bafa31784fed9762b595523f0edcd2438a28cba90653c688b3d68116c1",
        "broken_at": null,
        "reason": null
       }
@@ -1124,7 +1124,7 @@
     "turn_latency_ms": [
      6
     ],
-    "duration_s": 0.11,
+    "duration_s": 0.1,
     "error": null
    },
    {
@@ -1174,7 +1174,7 @@
       "detail": {
        "valid": true,
        "entries": 5,
-       "head": "c80330648d1162316ddebeef4386466fa4d0a52472d225a40ed5398a9821bb23",
+       "head": "adfe8a3c71ba3d107100a40f042d97df4b1132fcba06aadd0124edbadaabe1cd",
        "broken_at": null,
        "reason": null
       }
@@ -1247,7 +1247,7 @@
       "detail": {
        "valid": true,
        "entries": 5,
-       "head": "6fdaa6f67e7e6b8ff0793658d2e191ff8958de6bf8ca99ae3d851e47ba107c87",
+       "head": "0f41c2eef961e8ad561d23b88f6096ba641068b9ffeb28d5fa84887fa78bff0d",
        "broken_at": null,
        "reason": null
       }
