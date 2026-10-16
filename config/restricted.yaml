@@ -1,0 +1,4 @@
+# Illustrative restricted-jurisdiction list for the sandbox. Fictional codes only.
+jurisdictions:
+  - {code: "XR", name: "Restricted Demo Land"}
+  - {code: "XS", name: "Sanctioned Sandbox Isle"}

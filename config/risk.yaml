@@ -1,0 +1,14 @@
+# Weighted, explainable risk rules. Each rule adds points with a human-readable reason.
+weights:
+  large_vs_history: 20
+  moderate_vs_history: 10
+  velocity: 15
+  new_beneficiary: 25
+  registry_mismatch: 60
+  structuring: 35
+  restricted_jurisdiction: 100
+  unusual_time: 10
+  first_time_corridor: 15
+  injection_in_source: 40
+structuring_band: "0.85"   # payments within 85-100% of a limit count toward structuring
+unusual_local_hours: [0, 1, 2, 3, 4]

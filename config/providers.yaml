@@ -1,0 +1,59 @@
+# Fictional sandbox providers. No relation to any real company.
+providers:
+  - id: bank_wire
+    name: "Sandbox Bank Wire"
+    channel: bank_wire
+    markup: "0.0120"
+    fee_fixed_usd: "35.00"
+    fee_pct: "0"
+    min_days: 3
+    max_days: 5
+    cutoff_hour_utc: 15
+    max_amount_usd: "100000"
+    supports_tuition: true
+    requires_documents: true
+    corridors: ["*"]
+    blurb: "Traditional SWIFT-style wire. Handles large amounts, slow and pricey."
+  - id: alpha_remit
+    name: "Alpha Remit (sandbox)"
+    channel: remittance
+    markup: "0.0040"
+    fee_fixed_usd: "3.50"
+    fee_pct: "0.0030"
+    min_days: 1
+    max_days: 2
+    cutoff_hour_utc: 18
+    max_amount_usd: "3000"
+    supports_tuition: false
+    requires_documents: false
+    corridors: ["GBP-BDT", "BDT-BDT", "BDT-GBP", "CAD-NGN", "USD-NGN", "USD-INR", "GBP-INR", "GBP-NGN", "CAD-INR", "USD-BDT", "CAD-CAD", "GBP-GBP"]
+    blurb: "Low-cost digital remittance for everyday amounts."
+  - id: beta_express
+    name: "Beta Express (sandbox)"
+    channel: remittance
+    markup: "0.0210"
+    fee_fixed_usd: "1.99"
+    fee_pct: "0"
+    min_days: 0
+    max_days: 0
+    cutoff_hour_utc: 23
+    max_amount_usd: "2000"
+    supports_tuition: false
+    requires_documents: false
+    corridors: ["GBP-BDT", "BDT-BDT", "BDT-GBP", "CAD-NGN", "USD-NGN", "USD-INR", "GBP-INR", "GBP-NGN", "USD-BDT", "CAD-CAD", "GBP-GBP"]
+    blurb: "Same-day delivery, wider FX markup."
+  - id: campus_pay
+    name: "Campus Pay (sandbox)"
+    channel: tuition
+    markup: "0.0060"
+    fee_fixed_usd: "15.00"
+    fee_pct: "0"
+    min_days: 2
+    max_days: 3
+    cutoff_hour_utc: 14
+    max_amount_usd: "60000"
+    supports_tuition: true
+    tuition_only: true
+    requires_documents: true
+    corridors: ["BDT-GBP", "USD-GBP", "GBP-GBP", "NGN-CAD", "USD-CAD", "CAD-CAD", "INR-USD", "USD-USD"]
+    blurb: "Tuition-only rail to verified institutions; needs payment documents."

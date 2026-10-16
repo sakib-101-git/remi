@@ -1,0 +1,38 @@
+# Illustrative corridor rules for the sandbox. Verify real requirements with official sources.
+default_safety_buffer_days: 2
+corridors:
+  BDT-GBP:
+    purpose_codes:
+      - {code: "EDU-TUITION", label: "Education - tuition fees"}
+      - {code: "EDU-LIVING", label: "Education - living expenses"}
+    documents:
+      - "University offer / enrolment letter"
+      - "Tuition invoice with student ID"
+      - "Passport and visa copy"
+      - "Source-of-funds declaration (e.g. family support letter)"
+    note: "Outward education remittances usually go through an authorised dealer bank with supporting documents (illustrative)."
+  NGN-CAD:
+    purpose_codes:
+      - {code: "EDU-TUITION", label: "Education - tuition fees"}
+    documents:
+      - "Admission letter"
+      - "Tuition invoice"
+      - "Passport"
+      - "Source-of-funds declaration"
+    note: "Education payments typically require supporting documents at the sending bank (illustrative)."
+  INR-USD:
+    purpose_codes:
+      - {code: "EDU-TUITION", label: "Education - tuition fees"}
+    documents:
+      - "I-20 / admission letter"
+      - "Tuition invoice"
+      - "Passport"
+      - "Source-of-funds declaration"
+    note: "Education remittances commonly need a declaration and invoice (illustrative)."
+  default:
+    purpose_codes:
+      - {code: "FAM-SUPPORT", label: "Family support"}
+      - {code: "RENT", label: "Rent / accommodation"}
+      - {code: "OTHER", label: "Other personal transfer"}
+    documents: []
+    note: "Personal transfers within limits typically need no extra documents (illustrative)."

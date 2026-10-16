@@ -1,0 +1,19 @@
+# Sandbox mid-market snapshot. Illustrative values only, NOT live market data.
+snapshot_date: "2026-10-12"
+label: "sandbox rates"
+base: USD
+rates:            # units of currency per 1 USD
+  USD: "1"
+  GBP: "0.7450"
+  BDT: "122.50"
+  CAD: "1.3850"
+  NGN: "1530.00"
+  INR: "88.40"
+  EUR: "0.8600"
+tick:
+  volatility: "0.0015"   # std-dev of a single tick, as a fraction
+  shock: "0.0100"        # size of a sandbox-panel "shock" move
+remi_conversion:
+  name: "Remi wallet conversion (sandbox)"
+  markup: "0.0035"
+  fee_fixed_usd: "0"

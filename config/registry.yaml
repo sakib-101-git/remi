@@ -1,0 +1,23 @@
+# Verified institution registry (fictional). Payments to universities must match an entry here.
+institutions:
+  - id: northbridge
+    name: "Northbridge University (demo)"
+    country: UK
+    currency: GBP
+    bank_name: "Sandbox Bank UK"
+    account_number: "GB00SBUK40001234567890"
+    reference_prefix: "NBU"
+  - id: maplecrest
+    name: "Maplecrest College (demo)"
+    country: CA
+    currency: CAD
+    bank_name: "Sandbox Bank Canada"
+    account_number: "CA00SBCA00098765432"
+    reference_prefix: "MCC"
+  - id: lakeshore
+    name: "Lakeshore Institute of Technology (demo)"
+    country: US
+    currency: USD
+    bank_name: "Sandbox Bank US"
+    account_number: "US00SBUS0000111122223"
+    reference_prefix: "LIT"

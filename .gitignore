@@ -1,0 +1,38 @@
+# Internal working files (not part of the public repo)
+PROGRESS.md
+CLAUDE.md
+DECISIONS.md
+Presentation_Deck_Guide.md
+Demo_Video_Script.md
+submission/
+deck/
+*.pdf
+!docs/*.pdf
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Runtime data
+data/
+*.db
+*.db-journal
+.cache/
+backend/app/knowledge/index/
+
+# Node
+node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

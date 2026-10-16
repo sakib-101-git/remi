@@ -1,0 +1,11 @@
+country: US
+label: "United States"
+disclaimer: "Illustrative plan only. Verify with official sources; requirements vary by lender."
+tasks:
+  - {key: bank_account, month: 1, points: 10, depends_on: [], title: "Open a US checking account", description: "Use your passport, I-20 and university letter."}
+  - {key: itin_or_ssn, month: 1, points: 10, depends_on: [], title: "Check SSN/ITIN eligibility", description: "Some lenders accept alternatives; check what applies to your visa status."}
+  - {key: secured_card, month: 2, points: 25, depends_on: [bank_account], title: "Get a secured or student card", description: "Start small and pay in full."}
+  - {key: autopay_bills, month: 2, points: 10, depends_on: [bank_account], title: "Autopay recurring bills", description: "Never miss a due date."}
+  - {key: rent_reporting, month: 3, points: 15, depends_on: [bank_account], title: "Report rent payments", description: "Rent reporting can add positive history."}
+  - {key: low_utilisation, month: 4, points: 15, depends_on: [secured_card], title: "Keep utilisation under 30%", description: "Low balances help your score."}
+  - {key: free_report, month: 6, points: 15, depends_on: [secured_card], title: "Review your free credit reports", description: "Check all three bureaus for errors."}

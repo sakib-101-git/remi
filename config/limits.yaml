@@ -1,0 +1,13 @@
+# All amounts are USD-equivalent at sandbox mid rate.
+per_transaction_max_usd: "30000"        # hard block above this
+step_up_threshold_usd: "5000"           # T2 -> T3 (step-up) above this
+verified_institution_step_up_usd: "20000"  # higher threshold for registry-verified institutions
+daily_soft_limit_usd: "15000"           # crossing it requires step-up
+daily_max_usd: "40000"                  # hard block
+monthly_max_usd: "60000"
+velocity:
+  max_per_hour: 5
+  max_per_day: 12
+risk:
+  step_up_score: 50
+  block_score: 80

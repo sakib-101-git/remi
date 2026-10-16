@@ -1,0 +1,104 @@
+# Demo personas (fictional people). Balances are the target balances AFTER 90 days of seeded history.
+personas:
+  rahim:
+    name: "Rahim Rahman"
+    tagline: "Bangladesh → UK · Master's student"
+    home_country: BD
+    host_country: UK
+    university: "Northbridge University (demo)"
+    reporting_currency: GBP
+    credit_config: uk
+    student_id: "NBU-778201"
+    wallets: {BDT: "2400000.00", GBP: "1240.00", USD: "300.00"}
+    monthly_income:
+      - {description: "Family support (Rahman family)", amount: "150000", currency: BDT, day: 3, category: "Family support"}
+      - {description: "Campus library job", amount: "420", currency: GBP, day: 25, category: "Salary"}
+    monthly_conversion: {from: BDT, to: GBP, amount: "110000", day: 5}
+    recurring_spend:
+      - {merchant: "Greenway Lettings (demo)", amount: "650.00", currency: GBP, day: 1, category: "Rent"}
+      - {merchant: "Sandbox Mobile", amount: "12.00", currency: GBP, day: 8, category: "Phone"}
+      - {merchant: "StreamBox", amount: "8.99", currency: GBP, day: 14, category: "Subscriptions"}
+      - {merchant: "CloudNotes Pro", amount: "4.99", currency: GBP, day: 20, category: "Subscriptions"}
+      - {merchant: "City Transit Pass", amount: "58.00", currency: GBP, day: 2, category: "Transport"}
+    variable_spend:
+      - {merchants: ["FreshMart (demo)", "Corner Grocer", "Spice Bazaar"], monthly: "185", currency: GBP, count: 8, category: "Groceries"}
+      - {merchants: ["Campus Cafe", "Noodle Bar", "Pizza Corner"], monthly: "95", currency: GBP, count: 6, category: "Eating out"}
+      - {merchants: ["Book Nook", "Campus Print Shop"], monthly: "30", currency: GBP, count: 2, category: "Education"}
+      - {merchants: ["Dhaka Online Store"], monthly: "6000", currency: BDT, count: 1, category: "Shopping"}
+    growth: {Eating out: "1.35"}
+    beneficiaries:
+      - {key: mom, name: "Ayesha Rahman", nickname: "mom", kind: family, country: BD, currency: BDT, bank_name: "Sandbox Bank BD", account_number: "BD00SBBD1029384756"}
+      - {key: dad, name: "Karim Rahman", nickname: "dad", kind: family, country: BD, currency: BDT, bank_name: "Sandbox Bank BD", account_number: "BD00SBBD5647382910"}
+      - {key: landlord, name: "Greenway Lettings (demo)", nickname: "landlord", kind: landlord, country: UK, currency: GBP, bank_name: "Sandbox Bank UK", account_number: "GB00SBUK40009988776655"}
+      - {key: uni, registry_id: northbridge, kind: university, nickname: "university"}
+    past_transfers:
+      - {beneficiary: uni, days_ago: 70, provider: campus_pay, from: BDT, receive: "2000.00", currency: GBP, purpose: "EDU-TUITION", description: "Tuition deposit"}
+      - {beneficiary: mom, days_ago: 40, provider: alpha_remit, from: BDT, receive: "10000.00", currency: BDT, purpose: "FAM-SUPPORT", description: "Eid gift"}
+      - {beneficiary: mom, days_ago: 12, provider: alpha_remit, from: GBP, receive: "8000.00", currency: BDT, purpose: "FAM-SUPPORT", description: "Medicine for mom"}
+    obligations:
+      - {title: "Spring tuition — Northbridge University (demo)", kind: tuition, amount: "9250.00", currency: GBP, due_in_days: 21, invoice: true}
+      - {title: "Rent — Greenway Lettings", kind: rent, amount: "650.00", currency: GBP, due_day: 1, recurring: monthly}
+      - {title: "BRP / visa document renewal fee (illustrative)", kind: visa, amount: "150.00", currency: GBP, due_in_days: 75}
+  ada:
+    name: "Ada Okafor"
+    tagline: "Nigeria → Canada · Undergraduate"
+    home_country: NG
+    host_country: CA
+    university: "Maplecrest College (demo)"
+    reporting_currency: CAD
+    credit_config: ca
+    student_id: "MCC-230118"
+    wallets: {NGN: "1200000.00", CAD: "3200.00", USD: "150.00"}
+    monthly_income:
+      - {description: "Part-time job (campus bookstore)", amount: "1400", currency: CAD, day: 15, category: "Salary"}
+      - {description: "Family support (Okafor family)", amount: "400000", currency: NGN, day: 4, category: "Family support"}
+    monthly_conversion: {from: NGN, to: CAD, amount: "350000", day: 6}
+    recurring_spend:
+      - {merchant: "Maple Grove Rentals (demo)", amount: "1150.00", currency: CAD, day: 1, category: "Rent"}
+      - {merchant: "Sandbox Mobile CA", amount: "45.00", currency: CAD, day: 9, category: "Phone"}
+      - {merchant: "Transit Monthly Pass", amount: "128.00", currency: CAD, day: 1, category: "Transport"}
+      - {merchant: "StreamBox", amount: "11.99", currency: CAD, day: 17, category: "Subscriptions"}
+      - {merchant: "FitZone Gym", amount: "29.99", currency: CAD, day: 12, category: "Subscriptions"}
+    variable_spend:
+      - {merchants: ["NorthMart Grocery", "Fresh Fields Market", "African Pantry"], monthly: "265", currency: CAD, count: 8, category: "Groceries"}
+      - {merchants: ["Campus Cafe", "Poutine Place", "Jollof Kitchen"], monthly: "80", currency: CAD, count: 5, category: "Eating out"}
+      - {merchants: ["RideNow"], monthly: "40", currency: CAD, count: 3, category: "Transport"}
+    growth: {Groceries: "1.15"}
+    beneficiaries:
+      - {key: mum, name: "Ngozi Okafor", nickname: "mum", kind: family, country: NG, currency: NGN, bank_name: "Sandbox Bank NG", account_number: "NG00SBNG0123456789"}
+      - {key: landlord, name: "Maple Grove Rentals (demo)", nickname: "landlord", kind: landlord, country: CA, currency: CAD, bank_name: "Sandbox Bank Canada", account_number: "CA00SBCA00055544433"}
+      - {key: uni, registry_id: maplecrest, kind: university, nickname: "college"}
+    past_transfers:
+      - {beneficiary: mum, days_ago: 35, provider: alpha_remit, from: CAD, receive: "120000.00", currency: NGN, purpose: "FAM-SUPPORT", description: "Support for mum"}
+    obligations:
+      - {title: "Winter tuition instalment — Maplecrest College (demo)", kind: tuition, amount: "4800.00", currency: CAD, due_in_days: 45, invoice: true}
+      - {title: "Rent — Maple Grove Rentals", kind: rent, amount: "1150.00", currency: CAD, due_day: 1, recurring: monthly}
+  priya:
+    name: "Priya Sharma"
+    tagline: "India → USA · PhD student"
+    home_country: IN
+    host_country: US
+    university: "Lakeshore Institute of Technology (demo)"
+    reporting_currency: USD
+    credit_config: us
+    student_id: "LIT-904417"
+    wallets: {INR: "250000.00", USD: "4800.00"}
+    monthly_income:
+      - {description: "PhD stipend", amount: "2600", currency: USD, day: 1, category: "Salary"}
+    recurring_spend:
+      - {merchant: "Lakeview Apartments (demo)", amount: "1350.00", currency: USD, day: 1, category: "Rent"}
+      - {merchant: "Sandbox Wireless", amount: "35.00", currency: USD, day: 10, category: "Phone"}
+      - {merchant: "StreamBox", amount: "12.99", currency: USD, day: 18, category: "Subscriptions"}
+    variable_spend:
+      - {merchants: ["Green Basket", "Desi Grocers", "Campus Market"], monthly: "320", currency: USD, count: 8, category: "Groceries"}
+      - {merchants: ["Campus Cafe", "Curry House", "Taco Stand"], monthly: "110", currency: USD, count: 6, category: "Eating out"}
+      - {merchants: ["Metro Card"], monthly: "45", currency: USD, count: 2, category: "Transport"}
+    growth: {}
+    beneficiaries:
+      - {key: mom, name: "Meera Sharma", nickname: "mom", kind: family, country: IN, currency: INR, bank_name: "Sandbox Bank IN", account_number: "IN00SBIN0987654321"}
+      - {key: uni, registry_id: lakeshore, kind: university, nickname: "university"}
+    past_transfers:
+      - {beneficiary: mom, days_ago: 25, provider: alpha_remit, from: USD, receive: "20000.00", currency: INR, purpose: "FAM-SUPPORT", description: "Monthly support"}
+    obligations:
+      - {title: "Student activity & health fees — Lakeshore (demo)", kind: tuition, amount: "1200.00", currency: USD, due_in_days: 30, invoice: true}
+      - {title: "Rent — Lakeview Apartments", kind: rent, amount: "1350.00", currency: USD, due_day: 1, recurring: monthly}

@@ -1,0 +1,11 @@
+country: CA
+label: "Canada"
+disclaimer: "Illustrative plan only. Verify requirements with official sources and your lender."
+tasks:
+  - {key: sin_and_bank, month: 1, points: 15, depends_on: [], title: "Open a Canadian chequing account", description: "Use your study permit and ID to open an account; many banks have newcomer packages."}
+  - {key: secured_card, month: 1, points: 25, depends_on: [sin_and_bank], title: "Get a secured credit card", description: "A small deposit sets your limit; use it lightly and pay in full."}
+  - {key: phone_plan, month: 2, points: 10, depends_on: [sin_and_bank], title: "Put your phone plan on autopay", description: "Regular on-time payments build history."}
+  - {key: rent_reporting, month: 2, points: 15, depends_on: [sin_and_bank], title: "Report rent payments", description: "Ask your landlord about rent reporting to a credit bureau."}
+  - {key: low_utilisation, month: 3, points: 15, depends_on: [secured_card], title: "Keep utilisation under 30%", description: "Low balances relative to limit signal responsible use."}
+  - {key: check_report, month: 6, points: 10, depends_on: [secured_card], title: "Request your free credit report", description: "Review both bureaus' reports for errors."}
+  - {key: graduate_card, month: 6, points: 10, depends_on: [low_utilisation], title: "Ask about graduating to an unsecured card", description: "After 6-12 months of on-time payments, lenders may return your deposit."}

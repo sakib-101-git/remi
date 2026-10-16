@@ -1,0 +1,12 @@
+country: UK
+label: "United Kingdom"
+disclaimer: "Illustrative plan only. Credit scoring varies by agency and lender; verify with official sources."
+tasks:
+  - {key: address_proof, month: 1, points: 10, depends_on: [], title: "Get proof of UK address", description: "Keep a tenancy agreement or university letter showing your UK address; most applications ask for it."}
+  - {key: bank_account, month: 1, points: 15, depends_on: [address_proof], title: "Open a UK current account", description: "A local current account with regular activity is the foundation of a UK credit file."}
+  - {key: electoral_roll, month: 1, points: 10, depends_on: [address_proof], title: "Check electoral-register eligibility", description: "Some residents can register to vote at their address; if eligible, it helps confirm your identity. If not eligible, add proof of residency to your credit file instead."}
+  - {key: phone_contract, month: 2, points: 10, depends_on: [bank_account], title: "Move to a monthly phone contract (paid by direct debit)", description: "A small, regular bill paid on time creates positive payment history."}
+  - {key: rent_reporting, month: 2, points: 15, depends_on: [bank_account], title: "Enable rent reporting", description: "Ask your landlord or a rent-reporting service to report on-time rent payments."}
+  - {key: credit_builder_card, month: 3, points: 20, depends_on: [bank_account, phone_contract], title: "Apply for a credit-builder or secured card", description: "Use it for one small recurring purchase and pay in full each month."}
+  - {key: low_utilisation, month: 4, points: 10, depends_on: [credit_builder_card], title: "Keep utilisation under 30%", description: "Keep your balance well below the limit and pay by direct debit in full."}
+  - {key: review_report, month: 6, points: 10, depends_on: [credit_builder_card], title: "Review your statutory credit report", description: "Check your report for errors and dispute anything incorrect."}
