@@ -1,0 +1,23 @@
+flowchart LR
+  A["Agent tool call"] --> T0{"Changes state?"}
+  T0 -- no --> R0["<b>T0 Read</b><br/>auto · logged"]
+  T0 -- yes --> M{"Moves money?"}
+  M -- no --> R1["<b>T1 Low-risk write</b><br/>auto · logged · undo"]
+  M -- yes --> P["Policy engine<br/>limits · registry · risk score"]
+  P -- "verified payee / own wallets,<br/>within limits, low risk" --> R2["<b>T2 Money movement</b><br/>human confirms card<br/>single-use token bound to action hash"]
+  P -- "new payee · over threshold · first corridor<br/>changed details · risk ≥ threshold" --> R3["<b>T3 High risk</b><br/>confirm + step-up OTP<br/>+ cooling-off for new payees"]
+  P -- "over hard limit · registry mismatch<br/>restricted jurisdiction · injection" --> B["<b>Blocked</b><br/>fraud / limit warning · audit"]
+  G["Change limits · permissions<br/>disable alerts · audit edits"] --> R4["<b>T4 Governance</b><br/>never exposed to the agent<br/>human only, Settings + step-up"]
+
+  classDef t0 fill:#f1f5f9,stroke:#64748b,color:#0b1220
+  classDef t1 fill:#e0f2fe,stroke:#0284c7,color:#0b1220
+  classDef t2 fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#0b1220
+  classDef t3 fill:#ffe4e6,stroke:#e11d48,stroke-width:2px,color:#0b1220
+  classDef t4 fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#0b1220
+  classDef n fill:#ffffff,stroke:#94a3b8,color:#0b1220
+  class R0 t0
+  class R1 t1
+  class R2 t2
+  class R3,B t3
+  class R4 t4
+  class A,T0,M,P,G n

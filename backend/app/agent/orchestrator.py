@@ -18,7 +18,7 @@ from ..security import injection
 from ..security.redact import redact_text
 from ..services.context import Ctx
 from . import guardrails, prompts, tools
-from .llm import ChatResult, FallbackChain, ProviderError, build_chain
+from .llm import ChatResult, FallbackChain, ProviderError, ToolCall, build_chain
 from .mock import MockAgent
 
 Emit = Callable[[str, dict[str, Any]], None]
@@ -87,6 +87,13 @@ def _history(ctx: Ctx) -> tuple[list[dict[str, Any]], str]:
         asks = [r.content[:80] for r in older if r.role == "user"][-6:]
         summary = "Earlier in this conversation the user asked about: " + " | ".join(asks)
     return [{"role": r.role, "content": redact_text(r.content)} for r in recent], summary
+
+
+def _call_message(call: ToolCall) -> dict[str, Any]:
+    msg: dict[str, Any] = {"id": call.id, "type": "function", "function": {"name": call.name, "arguments": call.arguments}}
+    if call.extra:
+        msg["extra_content"] = call.extra
+    return msg
 
 
 def _source_chips(text: str, cards: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -162,7 +169,7 @@ def run_turn(ctx: Ctx, text: str, *, attachment: str | None = None, emit: Emit |
             audit.append(ctx.session, ctx.ws_id, "system", "agent.tool_cap", inputs={"calls": len(used)}, decision="stopped")
             result = ChatResult(content="I stopped here to stay within my safety limit of 8 tool calls per request. Could you narrow the request down?", provider=result.provider, model=result.model)
             break
-        messages.append({"role": "assistant", "content": result.content or None, "tool_calls": [{"id": c.id, "type": "function", "function": {"name": c.name, "arguments": c.arguments}} for c in result.tool_calls]})
+        messages.append({"role": "assistant", "content": result.content or None, "tool_calls": [_call_message(c) for c in result.tool_calls]})
         for call in result.tool_calls:
             try:
                 args = json.loads(call.arguments or "{}")

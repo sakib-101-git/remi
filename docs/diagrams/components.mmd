@@ -1,0 +1,49 @@
+flowchart LR
+  subgraph FE["frontend/src"]
+    direction TB
+    P["pages/<br/>Dashboard · Chat · Transfers · Budget<br/>Credit · Knowledge · Audit · Settings · Sandbox"]
+    C["components/cards/CardRenderer<br/>quotes · action · budget · credit · risk · sources"]
+    S["lib/store.tsx<br/>/api/events SSE"]
+  end
+  subgraph BE["backend/app"]
+    direction TB
+    API["api/<br/>routes · deps (workspace cookie) · limiter"]
+    AGT["agent/<br/>orchestrator · llm · mock · tools<br/>guardrails · prompts"]
+    POL["policy/<br/>engine · actions · tokens · limits<br/>governance · idempotency"]
+    RSK["risk/engine"]
+    SVC["services/<br/>quotes · payments · conversions · budget · credit<br/>alerts · invoices · beneficiaries · compliance · automation"]
+    SBX["sandbox/<br/>ledger · fx · clock · seed · workspaces · controls"]
+    KN["knowledge/retrieval"]
+    SEC["security/<br/>injection · redact"]
+    AUD["audit/log"]
+    DB[("SQLModel tables<br/>workspace-scoped SQLite")]
+  end
+  CFG[["config/*.yaml<br/>limits · providers · corridors · registry<br/>risk · restricted · credit/*"]]
+  KBD[["knowledge/*.md<br/>curated articles"]]
+
+  P --> API
+  C --> API
+  S --> API
+  API --> AGT
+  API --> POL
+  AGT --> SEC
+  AGT --> KN
+  AGT --> POL
+  AGT --> SVC
+  POL --> RSK
+  POL --> SVC
+  SVC --> SBX
+  SBX --> DB
+  POL --> AUD
+  AUD --> DB
+  KN --> KBD
+  SVC -.-> CFG
+  POL -.-> CFG
+  RSK -.-> CFG
+
+  classDef box fill:#ffffff,stroke:#64748b,color:#0b1220
+  classDef gate fill:#fff7ed,stroke:#f59e0b,stroke-width:2px,color:#0b1220
+  classDef data fill:#eef2ff,stroke:#6366f1,color:#0b1220
+  class P,C,S,API,AGT,RSK,SVC,SBX,KN,SEC,AUD box
+  class POL gate
+  class DB,CFG,KBD data

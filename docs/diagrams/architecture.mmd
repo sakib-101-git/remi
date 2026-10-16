@@ -1,0 +1,36 @@
+flowchart TB
+  UI["<b>UI</b> · React + Vite<br/>chat + action cards · dashboards · Sandbox phone"]
+  API["<b>API layer</b> · FastAPI<br/>signed per-visitor workspace · rate limits · idempotency keys · SSE"]
+  AG["<b>Agent orchestrator</b><br/>LLM loop · intent-scoped tool allowlist · ≤ 8 tool calls/turn<br/>schema + output validation · deterministic guardrails"]
+  LLM["<b>Free LLM fallback chain</b><br/>Gemini → Groq → OpenRouter → Ollama → mock<br/>record / replay cache"]
+  KB["<b>Knowledge base</b> (read-only)<br/>hybrid RAG: BM25 + local embeddings<br/>cited sources · untrusted-data wrapping"]
+  POL["<b>Policy engine</b> — the ONLY gate to money movement<br/>tiers T0–T4 · limits · risk score · HMAC-bound single-use tokens<br/>step-up OTP · cooling-off"]
+  HUM(["👤 Human confirms in the UI<br/>token never visible to the LLM"])
+  SVC["<b>Domain services</b><br/>wallets · FX · landed-cost optimizer · payments · budget/runway<br/>credit planner · alerts · invoices · compliance"]
+  LED[("<b>Sandbox ledger</b><br/>SQLite · double-entry · Decimal")]
+  AUD[("<b>Audit log</b><br/>append-only · SHA-256 hash chain")]
+
+  UI <-->|REST + Server-Sent Events| API
+  API --> AG
+  AG <-->|tool calls / text| LLM
+  AG -->|read-only search| KB
+  AG -->|propose only| POL
+  HUM -->|confirm + step-up endpoints| API
+  API -->|confirm · step-up · execute| POL
+  POL --> SVC
+  AG -->|T0 reads / T1 writes| SVC
+  SVC --> LED
+  POL --> AUD
+  AG --> AUD
+  SVC --> AUD
+
+  classDef ui fill:#ecfdfb,stroke:#0ea5a0,color:#0b1220
+  classDef core fill:#ffffff,stroke:#64748b,color:#0b1220
+  classDef gate fill:#fff7ed,stroke:#f59e0b,stroke-width:3px,color:#0b1220
+  classDef store fill:#eef2ff,stroke:#6366f1,color:#0b1220
+  classDef human fill:#dcfce7,stroke:#16a34a,color:#0b1220
+  class UI,API ui
+  class AG,LLM,KB,SVC core
+  class POL gate
+  class LED,AUD store
+  class HUM human

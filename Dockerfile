@@ -11,7 +11,8 @@ RUN npm run build
 FROM python:3.12-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 \
     APP_ENV=production PORT=7860 DATA_DIR=/tmp/remi-data \
-    LLM_CACHE=replay KB_USE_EMBEDDINGS=true HF_HOME=/tmp/hf
+    LLM_PROVIDER=gemini LLM_FALLBACK=gemini,groq,openrouter,mock LLM_CACHE=replay \
+    KB_USE_EMBEDDINGS=true HF_HOME=/tmp/hf
 RUN useradd -m -u 1000 remi
 WORKDIR /app
 COPY backend/requirements.txt backend/requirements.txt

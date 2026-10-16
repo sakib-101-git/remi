@@ -32,6 +32,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--sleep", type=float, default=0.0, help="seconds to wait between LLM turns (free-tier throttling)")
     p.add_argument("--only", default="", help="comma-separated scenario ids, e.g. S1,S6")
     p.add_argument("--resume", action="store_true", help="skip scenarios that already passed for this provider")
+    p.add_argument("--retry-wait", type=float, default=20.0, help="seconds before retrying a failed LLM call (429 back-off)")
     p.add_argument("--no-report", action="store_true")
     return p.parse_args()
 
@@ -48,6 +49,7 @@ os.environ.update({
     "RATE_LIMIT_CHAT": "1000/minute",
     "RATE_LIMIT_DEFAULT": "10000/minute",
     "DEMO_SETTLE_SECONDS": "1",
+    "LLM_RETRY_SECONDS": str(ARGS.retry_wait),
 })
 os.environ.setdefault("KB_USE_EMBEDDINGS", "true")
 sys.path.insert(0, str(ROOT / "backend"))
@@ -140,6 +142,9 @@ class Run:
                 self.last_action = actions[-1]
             self.log.append({"step": "say", "message": st["say"], "attachment": bool(body.get("attachment_text")), "reply": text, "cards": [c["type"] for c in cards], "tools": tools_used, "provider": meta.get("provider"), "model": meta.get("model"), "cached": meta.get("cached"), "latency_ms": ms, "actions": [{k: a.get(k) for k in ("id", "kind", "tier", "status", "risk_score", "policy_reasons")} for a in actions]})
             self._check_say(exp, text, cards, tools_used, actions)
+            if ARGS.provider != "mock":
+                # A real-model run only counts if the real model (or a deterministic guardrail) answered, not the mock fallback.
+                self.check(f"answered by {ARGS.provider} (no mock fallback)", meta.get("provider") in (ARGS.provider, "guardrail"), f"{meta.get('provider')}: {meta.get('provider_errors') or ''}")
             if ARGS.sleep and meta.get("provider") not in ("mock", "guardrail"):
                 time.sleep(ARGS.sleep)
         elif "confirm" in st:
@@ -340,7 +345,7 @@ def main() -> int:
     EVIDENCE.mkdir(exist_ok=True)
     results_path = EVIDENCE / "eval_results.json"
     all_results: dict[str, Any] = json.loads(results_path.read_text()) if results_path.exists() else {}
-    key = ARGS.provider
+    key = ARGS.provider if ARGS.cache != "replay" else f"{ARGS.provider}-replay"
     previous = {r["id"]: r for r in all_results.get(key, {}).get("results", [])}
     only = {s.strip().upper() for s in ARGS.only.split(",") if s.strip()}
     results = []

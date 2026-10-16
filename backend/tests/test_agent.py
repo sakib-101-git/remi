@@ -123,3 +123,28 @@ def test_max_tool_calls_cap(ctx, monkeypatch):
     assert len(out["meta"]["tools"]) <= tools.MAX_TOOL_CALLS_PER_TURN
     assert "safety limit" in out["text"]
     orchestrator.reset_chain()
+
+
+def test_provider_extra_content_is_echoed_with_tool_calls(ctx, monkeypatch):
+    """Gemini 3 rejects a follow-up request unless each tool call carries back its thought_signature."""
+    from app.agent.llm import ChatResult, FallbackChain, ToolCall
+
+    seen: list[list[dict]] = []
+
+    class Signer:
+        name, model = "mock", "signer"
+
+        def available(self):
+            return True
+
+        def chat(self, messages, tools_):
+            seen.append(messages)
+            if not any(m["role"] == "tool" for m in messages):
+                return ChatResult(content="", tool_calls=[ToolCall(id="c1", name="get_wallets", arguments="{}", extra={"google": {"thought_signature": "sig"}})])
+            return ChatResult(content="Here are your wallets.")
+
+    monkeypatch.setattr(orchestrator, "_chain", FallbackChain([Signer()]))
+    _run(ctx, "show my wallet balance")
+    call_msg = next(m for m in seen[-1] if m["role"] == "assistant" and m.get("tool_calls"))
+    assert call_msg["tool_calls"][0]["extra_content"] == {"google": {"thought_signature": "sig"}}
+    orchestrator.reset_chain()

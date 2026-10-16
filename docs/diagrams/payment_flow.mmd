@@ -1,0 +1,27 @@
+sequenceDiagram
+  autonumber
+  actor R as Rahim
+  participant UI as UI (React)
+  participant API as API (FastAPI)
+  participant AG as Agent + LLM
+  participant QTE as Optimizer
+  participant POL as Policy engine
+  participant LED as Ledger + Audit
+
+  R->>UI: "Pay my £9,250 tuition, cheapest safe way"
+  UI->>API: POST /api/chat (SSE)
+  API->>AG: guardrails pass · tools for "payments" intent
+  AG->>AG: get_obligations (T0) → invoice NBU-2026-8201
+  AG->>QTE: propose_payment(£9,250, invoice)
+  QTE->>QTE: reverse quote × 4 providers<br/>limits · corridor · deadline feasibility · rank
+  QTE->>POL: best feasible option
+  POL->>POL: balance · registry match · limits · risk score → T2
+  POL->>LED: PendingAction + payload_hash + HMAC(token) · audit
+  POL-->>AG: {executed: false, next_step: "user must confirm"}
+  Note over AG,POL: token goes only to the UI card, never to the LLM
+  AG-->>UI: explanation + quote table + confirmation card (token)
+  R->>UI: reviews amount, rate, fee, landed cost, arrival → Confirm
+  UI->>API: POST /actions/{id}/confirm (token, Idempotency-Key)
+  API->>POL: verify token (single-use, 5 min, hash, HMAC) · re-evaluate policy
+  POL->>LED: balanced journal entries · invoice paid · receipt RMI-… · audit
+  LED-->>UI: SSE: pending → processing → settled

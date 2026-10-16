@@ -38,6 +38,8 @@ def set_alert(
     direction = direction or ("below" if target < current else "above")
     if direction not in ("below", "above"):
         raise DomainError("Direction must be 'below' or 'above'")
+    if (direction == "above" and current >= target) or (direction == "below" and current <= target):
+        raise DomainError(f"{base}/{quote} is already {current}, {direction} {target} - this alert would fire immediately. Omit direction to watch for the rate to move past the target.")
     alert = RateAlert(
         workspace_id=ctx.ws_id, user_id=ctx.user.id, base=base, quote=quote, direction=direction, target_rate=target,
         convert_amount=None if convert_amount is None else D(convert_amount), convert_currency=convert_currency.upper() if convert_currency else None,

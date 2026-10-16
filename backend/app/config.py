@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import secrets
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -38,25 +39,36 @@ def _env_bool(name: str, default: bool) -> bool:
     return _env(name, str(default)).lower() in {"1", "true", "yes", "on"}
 
 
+def _secret_key() -> str:
+    """Signs workspace cookies and token HMACs. Production without SECRET_KEY gets a random per-process key, never the public dev default."""
+    key = _env("SECRET_KEY", "")
+    if key:
+        return key
+    if _env("APP_ENV", "development") == "production":
+        return secrets.token_hex(32)
+    return "dev-only-insecure-secret-change-me"
+
+
 @dataclass(frozen=True)
 class Settings:
     app_env: str = field(default_factory=lambda: _env("APP_ENV", "development"))
     port: int = field(default_factory=lambda: int(_env("PORT", "8000")))
     data_dir: Path = field(default_factory=lambda: Path(_env("DATA_DIR", str(ROOT_DIR / "data"))))
-    secret_key: str = field(default_factory=lambda: _env("SECRET_KEY", "dev-only-insecure-secret-change-me"))
+    secret_key: str = field(default_factory=lambda: _secret_key())
     demo_mode: bool = field(default_factory=lambda: _env_bool("DEMO_MODE", True))
     cooling_off_seconds: int = field(default_factory=lambda: int(_env("COOLING_OFF_SECONDS", "60")))
     demo_settle_seconds: int = field(default_factory=lambda: int(_env("DEMO_SETTLE_SECONDS", "12")))
     confirmation_ttl_seconds: int = field(default_factory=lambda: int(_env("CONFIRMATION_TTL_SECONDS", "300")))
     workspace_idle_hours: int = field(default_factory=lambda: int(_env("WORKSPACE_IDLE_HOURS", "24")))
-    llm_provider: str = field(default_factory=lambda: _env("LLM_PROVIDER", "mock"))
+    llm_provider: str = field(default_factory=lambda: _env("LLM_PROVIDER", "gemini"))
     llm_fallback: tuple[str, ...] = field(
         default_factory=lambda: tuple(
             p.strip() for p in _env("LLM_FALLBACK", "gemini,groq,openrouter,ollama,mock").split(",") if p.strip()
         )
     )
-    llm_cache: str = field(default_factory=lambda: _env("LLM_CACHE", "off"))
+    llm_cache: str = field(default_factory=lambda: _env("LLM_CACHE", "replay"))
     llm_timeout_seconds: float = field(default_factory=lambda: float(_env("LLM_TIMEOUT_SECONDS", "30")))
+    llm_retry_seconds: float = field(default_factory=lambda: float(_env("LLM_RETRY_SECONDS", "0.8")))
     llm_daily_budget: int = field(default_factory=lambda: int(_env("LLM_DAILY_BUDGET", "400")))
     rate_limit_chat: str = field(default_factory=lambda: _env("RATE_LIMIT_CHAT", "20/minute"))
     rate_limit_default: str = field(default_factory=lambda: _env("RATE_LIMIT_DEFAULT", "120/minute"))

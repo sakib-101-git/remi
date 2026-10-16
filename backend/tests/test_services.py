@@ -105,3 +105,10 @@ def test_one_off_transfer_does_not_inflate_burn_rate(ctx):
     assert after["daily_burn"] == before["daily_burn"]
     assert after["runway_days"] < before["runway_days"]
     assert all(r["id"] != "trim_category" or "Transfers" not in r["title"] for r in budget.summary(ctx)["recommendations"])
+
+
+def test_rate_alert_already_met_is_rejected_and_omitted_direction_is_inferred(ctx):
+    with pytest.raises(DomainError, match="fire immediately"):
+        alerts.set_alert(ctx, "GBP", "BDT", Decimal("163.5"), direction="above")
+    out = alerts.set_alert(ctx, "GBP", "BDT", Decimal("163.5"))
+    assert out["direction"] == "below"

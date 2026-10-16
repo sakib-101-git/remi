@@ -120,17 +120,17 @@ class QuoteArgs(Money):
     amount_currency: str = Field(..., description="Currency of `amount`")
     recipient: str | None = Field(None, description="Saved recipient name/nickname, e.g. 'mom', 'university'")
     receive_currency: str | None = Field(None, description="Needed if no recipient")
-    from_currency: str | None = Field(None, description="Wallet to pay from; default chosen automatically")
+    from_currency: str | None = Field(None, description="Wallet to pay from. Set it whenever the user names a currency to send; otherwise chosen automatically")
     deadline: str | None = Field(None, description="YYYY-MM-DD")
     goal: Literal["cheapest", "fastest", "balanced"] = "cheapest"
 
 
 class ReverseArgs(Money):
     target_amount: str = Field(..., description="Exact amount the recipient must receive")
-    target_currency: str
-    recipient: str | None = None
-    from_currency: str | None = None
-    deadline: str | None = None
+    target_currency: str = Field(..., description="Currency the recipient receives")
+    recipient: str | None = Field(None, description="Saved recipient name/nickname, e.g. 'university'")
+    from_currency: str | None = Field(None, description="Currency/wallet the user sends from. Set it whenever the user names one (e.g. 'how much BDT' -> BDT)")
+    deadline: str | None = Field(None, description="YYYY-MM-DD")
 
 
 class FeeArgs(Money):
@@ -169,7 +169,7 @@ class AlertArgs(Money):
     base: str = Field(..., description="Pair base, e.g. GBP for GBP/BDT")
     quote: str = Field(..., description="Pair quote, e.g. BDT")
     target_rate: str = Field(..., description="Units of quote per 1 base")
-    direction: Literal["below", "above"] | None = None
+    direction: Literal["below", "above"] | None = Field(None, description="Omit unless the user literally says above/below; 'better than X' is inferred from the current rate")
     convert_amount: str | None = Field(None, description="Optional: amount to propose converting when hit")
     convert_currency: str | None = None
 
@@ -440,7 +440,9 @@ def h_add_payee(ctx: Ctx, a: AddPayeeArgs) -> ToolResult:
 
 def h_beneficiaries(ctx: Ctx, _: NoArgs) -> ToolResult:
     rows = [bene.to_dict(ctx, b) for b in bene.all_for_user(ctx)]
-    return ToolResult({"beneficiaries": rows}, [])
+    note = ("Payments to a payee in cooling-off can still be proposed now with propose_payment: once the user confirms, "
+            "the payment is scheduled and released automatically when the cooling-off ends.")
+    return ToolResult({"beneficiaries": rows, "note": note}, [])
 
 
 REGISTRY: dict[str, Tool] = {t.name: t for t in [

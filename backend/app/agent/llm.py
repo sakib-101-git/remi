@@ -28,6 +28,8 @@ class ToolCall:
     id: str
     name: str
     arguments: str
+    # Provider-specific data that must be echoed back with the call (Gemini 3 thought_signature lives here).
+    extra: dict[str, Any] | None = None
 
 
 @dataclass
@@ -85,7 +87,10 @@ class OpenAICompatBackend:
         if not resp.choices:
             raise ProviderError(f"{self.name}: empty response")
         msg = resp.choices[0].message
-        calls = [ToolCall(id=c.id or f"call_{i}", name=c.function.name, arguments=c.function.arguments or "{}") for i, c in enumerate(msg.tool_calls or [])]
+        calls = [
+            ToolCall(id=c.id or f"call_{i}", name=c.function.name, arguments=c.function.arguments or "{}", extra=(c.model_extra or {}).get("extra_content"))
+            for i, c in enumerate(msg.tool_calls or [])
+        ]
         return ChatResult(content=_strip_thinking(msg.content or ""), tool_calls=calls, provider=self.name, model=self.model)
 
 
@@ -187,7 +192,7 @@ class FallbackChain:
                     self.last_errors.append(str(exc))
                     log.warning("LLM provider failed: %s", exc)
                     if attempt == 0:
-                        time.sleep(0.8)
+                        time.sleep(get_settings().llm_retry_seconds)
         raise ProviderError("All LLM providers failed: " + " | ".join(self.last_errors[-4:]))
 
 

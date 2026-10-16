@@ -1,0 +1,18 @@
+flowchart LR
+  U["User message"] --> G{"Deterministic<br/>guardrails"}
+  G -- "evasion / T4 request" --> RF["Refusal + safe explanation<br/>(no LLM call)"]
+  G -- ok --> I["Intent → tool subset<br/>compact prompt + history"]
+  I --> L["LLM picks tools<br/>(fallback chain · replay cache)"]
+  L -- tool calls --> V["Allowlist + schema<br/>validation"]
+  V --> X["Run tool<br/>T0 read · T1 write · T2/T3 propose"]
+  X -- "redacted, untrusted-wrapped output" --> L
+  L -- "final text" --> O["Output validation<br/>no false 'done' claims"]
+  O --> C["Reply + cards<br/>quotes · confirmation · sources"]
+  X -. "≤ 8 tool calls / turn" .-> L
+
+  classDef n fill:#ffffff,stroke:#64748b,color:#0b1220
+  classDef safe fill:#ecfdfb,stroke:#0ea5a0,stroke-width:2px,color:#0b1220
+  classDef stop fill:#ffe4e6,stroke:#e11d48,color:#0b1220
+  class U,I,L,X,C n
+  class G,V,O safe
+  class RF stop
