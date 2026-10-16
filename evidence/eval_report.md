@@ -1,18 +1,18 @@
 # Remi - golden scenario evaluation report
 
-Generated 2026-10-16 17:48 UTC by `evals/run_evals.py`. Sandbox clock pinned to 2026-10-14T10:00:00Z for reproducibility.
+Generated 2026-10-16 18:20 UTC by `evals/run_evals.py`. Sandbox clock pinned to 2026-10-14T10:00:00Z for reproducibility.
 
 ## Summary
 
 | Provider run | Scenarios passed | Checks passed | Median turn latency |
 |---|---|---|---|
 | `mock` (off) | **13/13** | 122/122 | 10 ms |
-| `gemini` (record) | **13/13** | 136/136 | 25450 ms |
-| `gemini-replay` (replay) | **13/13** | 136/136 | 11 ms |
+| `gemini` (record) | **13/13** | 136/136 | 18182 ms |
+| `gemini-replay` (replay) | **13/13** | 136/136 | 12 ms |
 
 ## Results - `mock`
 
-Run at 2026-10-16T17:48:06Z, cache mode `off`.
+Run at 2026-10-16T18:20:18Z, cache mode `off`.
 
 | # | Scenario | Demonstrates | Result | Checks | Answered by |
 |---|---|---|---|---|---|
@@ -32,7 +32,7 @@ Run at 2026-10-16T17:48:06Z, cache mode `off`.
 
 ## Results - `gemini`
 
-Run at 2026-10-16T17:46:03Z, cache mode `record`.
+Run at 2026-10-16T18:19:58Z, cache mode `record`.
 
 | # | Scenario | Demonstrates | Result | Checks | Answered by |
 |---|---|---|---|---|---|
@@ -52,7 +52,7 @@ Run at 2026-10-16T17:46:03Z, cache mode `record`.
 
 ## Results - `gemini-replay`
 
-Run at 2026-10-16T17:47:47Z, cache mode `replay`.
+Run at 2026-10-16T18:20:08Z, cache mode `replay`.
 
 | # | Scenario | Demonstrates | Result | Checks | Answered by |
 |---|---|---|---|---|---|
@@ -91,4 +91,6 @@ How we got from the first real-model run to 13/13 (each fix is covered by a test
 
 The replay run serves the recorded Gemini answers (`(cache)` in "Answered by") against fresh workspaces with new random ids. It caught one more bug: a replayed `invoice_id` from the recording workspace. Invoice ids are now accepted only when they belong to the caller's workspace (`payments.own_invoice`), and otherwise the payee's open invoice is used.
 
-Free-tier caveats: Gemini returned occasional `503 high demand` errors; the retry absorbed them. Live latency is dominated by the free tier (median ≈ 25 s per turn including several tool calls), which is why the public demo serves recorded answers first.
+Recording the demo video in one long session (where the replay cache misses) exposed one more gap. Gemini skipped `analyze_document` and went straight to a tuition proposal. That was safe, because it used the registry account and was blocked for balance, but no fraud warning was shown. **Document review is now deterministic**: every attachment is analysed by code before the model runs, and a suspected fraud removes the money-moving tools for that turn (`test_attachment_is_reviewed_deterministically_and_fraud_removes_money_tools`). FX "shock" ticks are now exact moves (no random noise on top), so S6 and the demo button are reproducible. A clean re-recording on that code (empty cache) passed **11/13**. S2 had one turn fall back to the mock after repeated Gemini `503` errors, which the no-fallback check correctly failed. S8 routed correctly but did not *say* it won't split the payment. An explicit split request now always gets a deterministic refusal sentence (`guardrails.add_split_refusal`, tested). S2 and S8 were then re-run live: both pass, giving the 13/13 above. Every other scenario's result comes from the clean re-recording.
+
+Free-tier caveats: Gemini returned occasional `503 high demand` errors; the retry absorbed them. Live latency is dominated by the free tier (median ≈ 18–25 s per turn across runs, including several tool calls), which is why the public demo serves recorded answers first.

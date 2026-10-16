@@ -201,7 +201,7 @@ def run_turn(ctx: Ctx, text: str, *, attachment: str | None = None, emit: Emit |
             content = json.dumps(out.data, default=str)
             messages.append({"role": "tool", "tool_call_id": call.id, "name": call.name, "content": content[:12000]})
     final = (result.content if result else "") or "I couldn't complete that request."
-    final = guardrails.validate_output(final, executed, proposed)
+    final = guardrails.add_split_refusal(text, guardrails.validate_output(final, executed, proposed))
     if any(u["name"] == "search_knowledge" for u in used) and "[KB:" not in final:
         src = next((c for c in cards if c["type"] == "sources"), None)
         if src and src["data"]:

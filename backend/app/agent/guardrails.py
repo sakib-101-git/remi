@@ -21,6 +21,7 @@ GOVERNANCE = re.compile(
 )
 OFF_TOPIC = re.compile(r"\b(write (me )?(a )?(poem|essay|code|story)|recipe|weather|football|movie|homework|crypto(currency)? (tips|picks)|which stock|lottery)\b", re.I)
 SPECULATION = re.compile(r"\b(will (the )?(pound|gbp|dollar|usd|taka|bdt|naira|rupee|cad|rate)s? (go|rise|fall|drop|crash|increase)|predict|forecast|best time to (buy|convert)|should i invest)\b", re.I)
+SPLIT_REQUEST = re.compile(r"\b(split|break (it )?(up|into)|smaller (payments|transfers|amounts)|several (payments|transfers)|multiple (payments|transfers))\b", re.I)
 CLAIM_DONE = re.compile(r"\b(i('ve| have)|has been|have been|was|were|successfully)\s+(sent|paid|transferred|converted|executed|completed|added)\b", re.I)
 
 
@@ -72,3 +73,10 @@ def validate_output(text: str, executed_this_turn: bool, proposed_this_turn: boo
     if proposed_this_turn and not executed_this_turn and "Nothing has moved yet" not in text:
         text = text.rstrip() + "\n\nNothing has moved yet - review the action card and confirm it if everything looks right."
     return text.strip()
+
+
+def add_split_refusal(user_text: str, reply: str) -> str:
+    """An explicit request to split around a limit always gets an explicit refusal, whatever the model wrote."""
+    if SPLIT_REQUEST.search(user_text) and not re.search(r"\bsplit", reply, re.I):
+        reply += "\n\nI won't split this into smaller payments to get around a limit - that is structuring. The full amount goes through a channel that supports it. [KB: Transfer limits and why Remi never splits payments]"
+    return reply

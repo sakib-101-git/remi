@@ -190,3 +190,12 @@ def test_attachment_is_reviewed_deterministically_and_fraud_removes_money_tools(
     assert any(c["type"] == "fraud" for c in out["cards"])
     assert not any(name.startswith("propose_") for name in offered[0])
     assert ctx.session.exec(select(PendingAction).where(PendingAction.workspace_id == ctx.ws_id)).first() is None
+
+
+def test_split_request_always_gets_explicit_refusal():
+    from app.agent.guardrails import add_split_refusal
+
+    out = add_split_refusal("Send 700,000 BDT, just split it into smaller payments", "I've proposed the bank wire.")
+    assert "won't split" in out
+    assert add_split_refusal("Send 700,000 BDT to dad", "Proposed.") == "Proposed."
+    assert add_split_refusal("split it", "I never split payments.") == "I never split payments."
