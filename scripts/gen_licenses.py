@@ -9,7 +9,7 @@ from importlib import metadata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PERMISSIVE = re.compile(r"MIT|BSD|Apache|ISC|PSF|Python Software|0BSD|Unlicense|CC0|Zlib|MPL|BlueOak|CC-BY-4.0|Python-2.0", re.I)
+PERMISSIVE = re.compile(r"MIT|BSD|Apache|ISC|PSF|Python Software|0BSD|Unlicense|CC0|Zlib|MPL|BlueOak|CC-BY-4.0|Python-2.0|OFL", re.I)
 
 CLASSIFIER_MAP = {
     "MIT License": "MIT",
@@ -25,7 +25,8 @@ OVERRIDES = {"py-rust-stemmers": "MIT (upstream qdrant/py-rust-stemmers; metadat
 
 EXTRA = [
     ("BAAI/bge-small-en-v1.5 (embedding model, via fastembed)", "MIT", "Local knowledge-base embeddings"),
-    ("Inter, Space Grotesk, JetBrains Mono (Google Fonts)", "OFL-1.1", "UI typography (loaded from Google Fonts)"),
+    ("Bricolage Grotesque, Inter (via @fontsource, self-hosted)", "OFL-1.1", "UI typography; the remi wordmark is outlined from Bricolage Grotesque ExtraBold (OFL permits use in logos)"),
+    ("circle-flags", "MIT", "Round currency and country flags"),
     ("Playwright browsers (Chromium)", "Apache-2.0 / BSD", "E2E tests, screenshots, PDF rendering (dev only)"),
     ("Mermaid CLI (@mermaid-js/mermaid-cli, via npx)", "MIT", "Diagram rendering for docs (dev only)"),
 ]
@@ -133,7 +134,7 @@ def main() -> int:
     if flagged:
         out += ["Packages whose metadata does not state a common permissive licence (checked manually):", "", *table(flagged), ""]
     else:
-        out += ["Every package below reports a permissive licence (MIT, BSD, Apache-2.0, ISC, PSF, MPL-2.0, CC0 and similar). No copyleft (GPL/AGPL) dependency is used.", ""]
+        out += ["Every package below reports a permissive licence (MIT, BSD, Apache-2.0, ISC, PSF, MPL-2.0, CC0 and similar; fonts use the SIL Open Font License). No copyleft (GPL/AGPL) dependency is used.", ""]
     out += [
         "## Python - transitive dependencies",
         "",

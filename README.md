@@ -1,4 +1,7 @@
-# Remi: the AI money agent for international students that actually acts
+<p align="center"><img src="frontend/public/brand/remi-wordmark.svg" alt="remi" height="72"></p>
+
+<h1 align="center">Money across borders, handled.</h1>
+<p align="center">The AI money agent for international students that actually acts, and always waits for your approval.</p>
 
 > **FinTechathon 2026 · International Track · Topic C: Cross-border & Student Finance Assistant**
 > Theme: *AI as a Financial Participant* · Team **Git Push Pray**
@@ -9,7 +12,11 @@ Remi plans and **executes** cross-border payments, manages multi-currency wallet
 
 > ⚠️ **Sandbox demo.** No real money and no real bank, remittance or KYC integrations. All banks, providers and universities are fictional. Not financial, legal or tax advice.
 
-![Remi dashboard](evidence/screenshots/02_dashboard.png)
+![Remi landing page](evidence/screenshots/01_landing.png)
+
+| Home | Send | Insights | Security |
+|---|---|---|---|
+| ![](evidence/screenshots/03_home.png) | ![](evidence/screenshots/04_send.png) | ![](evidence/screenshots/07_insights.png) | ![](evidence/screenshots/10_security.png) |
 
 ## Why Remi is an agent, not a chatbot
 
@@ -22,21 +29,26 @@ Ask *"Pay my £9,250 tuition before the deadline, cheapest safe way"* and Remi:
 5. on **your** confirmation, executes in the double-entry ledger, issues a receipt (`RMI-…`) and streams settlement live,
 6. records every step in a **SHA-256 hash-chained audit log** you can verify with one click.
 
-| Quotes and recommendation | Confirmation card | Fraud blocked (S7) | Step-up on the Sandbox phone (S8) |
+| Best option + approval card (S1) | Live tracking + receipt | Fraud blocked (S7) | One-time code for a large payment (S8) |
 |---|---|---|---|
-| ![](evidence/screenshots/03_chat_s1_quotes.png) | ![](evidence/screenshots/04_confirm_card.png) | ![](evidence/screenshots/09_fraud_block.png) | ![](evidence/screenshots/10_stepup_phone.png) |
+| ![](evidence/screenshots/05_chat_s1_review.png) | ![](evidence/screenshots/06_chat_s1_tracking.png) | ![](evidence/screenshots/14_fraud_block.png) | ![](evidence/screenshots/15_stepup_code.png) |
 
 ## Features
 
 * **Multi-currency wallets:** balances in BDT/GBP/USD (and NGN/CAD, INR/USD), conversions showing the offered rate vs mid-market.
 * **Remittance and tuition agent:** forward and reverse quotes, landed-cost optimizer, deadline feasibility, purpose code and source-of-funds capture, receipts, live settlement.
-* **Budget and runway:** spending normalised across currencies, monthly burn, "your money lasts until …", three actionable tips.
+* **Insights:** spending normalised across currencies, "your money lasts until …", top categories, one actionable suggestion at a time.
 * **Credit-building planner:** six-month illustrative plans for the UK, Canada and US, tracked as tasks with a readiness meter.
 * **Real-time FX alerts:** a sandbox rate tick fires the alert, and Remi proposes the conversion (which you still confirm).
 * **Knowledge assistant (RAG):** 21 curated articles, hybrid BM25 plus local embeddings, answers cite `[KB: …]` sources that open in a side panel.
-* **Visible safety layer:** tier badges, confirmation cards, risk score with reasons, step-up OTP, cooling-off, kill switch, audit viewer with chain verification.
-* **Sandbox control panel:** advance time, tick or shock FX rates, inject a family remittance or a suspicious invoice, reset.
-* Three personas (Rahim 🇧🇩→🇬🇧, Ada 🇳🇬→🇨🇦, Priya 🇮🇳→🇺🇸), light/dark mode, mobile layout, per-visitor private sandboxes.
+* **Visible safety layer:** a plain-language permission ladder, approval cards, the reasons behind each extra check, one-time codes, waiting periods for new recipients, a pause switch and a readable, verifiable activity log.
+* **Ask Remi everywhere:** a chat panel on every screen with rich cards (best option, approval, tracking, fraud warning, cited help).
+* **Demo controls:** a small "Demo" drawer to advance time, move or shock FX rates, receive money from family or a suspicious invoice, switch persona and reset.
+* Three personas (Rahim 🇧🇩→🇬🇧, Ada 🇳🇬→🇨🇦, Priya 🇮🇳→🇺🇸), responsive down to 390 px, per-visitor private sandboxes.
+
+### Design
+
+A calm, premium money app: warm cream background, deep green brand colour and one orange accent (the coin in the logo). Type is Bricolage Grotesque for headings and numbers and Inter for text, on a strict eight-style scale. All colours, sizes, radii and shadows come from one token file (`frontend/src/styles/tokens.css`), every screen is built from one component kit (`frontend/src/ui/`), and `npm run lint:design` fails the build on any hard-coded colour or font size. A hidden `#/styleguide` route shows every token and component. Lighthouse (mobile, throttled): landing page 97 performance · 100 accessibility · 100 best practices.
 
 ## Quick start
 
@@ -71,7 +83,7 @@ The fallback chain is **Gemini → Groq → OpenRouter → Ollama → determinis
 ## Tests and evaluation
 
 ```bash
-cd backend && .venv/bin/python -m pytest -q                     # 104 unit/API tests
+cd backend && .venv/bin/python -m pytest -q                     # 106 unit/API tests
 backend/.venv/bin/python evals/run_evals.py                      # 13 golden scenarios, offline agent
 backend/.venv/bin/python evals/run_evals.py --provider gemini --sleep 6 --cache record   # on a free real model
 cd frontend && npx playwright test                               # S1 end to end in a real browser
@@ -79,7 +91,7 @@ cd frontend && npx playwright test                               # S1 end to end
 
 | Suite | Result |
 |---|---|
-| Unit and API tests (pytest) | **104 passed**: confirmation tokens, idempotency, limits, risk rules, audit tamper detection, injection, workspace isolation, optimizer math, retrieval |
+| Unit and API tests (pytest) | **106 passed**: confirmation tokens, idempotency, limits, risk rules, audit tamper detection, injection, workspace isolation, optimizer math, retrieval |
 | Golden scenarios S1–S13, deterministic agent | **13/13** |
 | Golden scenarios S1–S13, Gemini (free tier, live) | **13/13**, see [`evidence/eval_report.md`](evidence/eval_report.md) |
 | Golden scenarios S1–S13, recorded replay | **13/13** |
@@ -121,7 +133,12 @@ backend/app/      FastAPI app
   security/       injection detection, redaction
   knowledge/      hybrid retrieval (BM25 + fastembed)
 backend/tests/    pytest suite
-frontend/         React + Vite + TypeScript + Tailwind (src/pages, src/components/cards, e2e/)
+frontend/         React + Vite + TypeScript + Tailwind v4
+  src/styles/     design tokens (the only place colours and type sizes live)
+  src/ui/         component kit (Button, Card, AmountInput, Timeline, Sheet, …)
+  src/app/        shell, Ask Remi panel, demo controls, overlays
+  src/cards/      chat cards (quote, approval + tracking, fraud, insight, …)
+  src/pages/      Landing, Home, Send, Wallets, Insights, Credit, Security, Help, Styleguide
 knowledge/        curated knowledge-base articles (Markdown)
 config/           limits, providers, corridors, registry, risk weights, credit plans
 evals/            golden scenarios S1–S13, runner, replay cache
@@ -135,7 +152,7 @@ scripts/          start, dev, seed, deploy_hf, build_docs, package_submission, c
 | Layer | Choice | Cost |
 |---|---|---|
 | Backend | Python, FastAPI, SQLModel + SQLite, slowapi | Free, open source |
-| Frontend | React, Vite, TypeScript, Tailwind CSS, Recharts, lucide | Free, open source |
+| Frontend | React, Vite, TypeScript, Tailwind CSS, lucide, circle-flags, Bricolage Grotesque + Inter (self-hosted, SIL OFL) | Free, open source |
 | LLM | Gemini free tier → Groq free tier → OpenRouter `:free` → Ollama → mock | Free (no card) |
 | Embeddings | fastembed + BGE-small, running locally | Free |
 | Hosting | Render free web service (Docker) | Free |

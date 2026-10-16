@@ -13,13 +13,13 @@ Remi follows the track theme, *AI as a Financial Participant*. The agent complet
 
 * The **LLM only interprets intent, chooses tools and explains results.** Every number comes from deterministic code using `Decimal` arithmetic.
 * A **deterministic policy engine is the only gate to money movement.** It assigns permission tiers T0–T4, enforces limits, scores risk and issues **single-use confirmation tokens bound to the exact action**. The LLM never sees these tokens.
-* High-risk actions add **step-up verification** (simulated OTP on a "Sandbox phone") and **cooling-off** for new payees.
+* High-risk actions add **step-up verification** (a simulated one-time code delivered like a phone notification) and **cooling-off** for new payees.
 * Every step is written to an **append-only, SHA-256 hash-chained audit log** that anyone can verify.
 * **Prompt-injection and invoice-fraud defences** treat document and knowledge-base text as untrusted data. University payments must match a verified registry.
 
 Remi runs at zero cost. The primary model is Google Gemini's free tier, with a fallback chain (Groq → OpenRouter free → local Ollama → deterministic mock agent) and a record/replay cache, so the live demo never depends on rate limits or venue Wi-Fi.
 
-**Results (sandbox):** 13/13 golden scenarios pass end to end through the real HTTP API on the deterministic agent (122/122 checks), on Google Gemini's free tier live (136/136 checks, no fallback allowed) and from the recorded replay cache (136/136). 104 automated unit and API tests and a Playwright browser test of S1 are green. Details in §10.
+**Results (sandbox):** 13/13 golden scenarios pass end to end through the real HTTP API on the deterministic agent (122/122 checks), on Google Gemini's free tier live (136/136 checks, no fallback allowed) and from the recorded replay cache (136/136). 106 automated unit and API tests and a Playwright browser test of S1 are green. Details in §10.
 
 # 2. Problem and target users
 
@@ -54,7 +54,7 @@ Each persona has 90 days of deterministic transaction history, beneficiaries, ob
 ![Layered architecture](diagrams/architecture.png)
 
 ```
-UI (React: chat + action cards + dashboards + Sandbox phone)
+UI (React: landing, Home/Send/Wallets/Insights/Credit/Security/Help, Ask Remi panel with rich cards)
    │  REST + Server-Sent Events
 API layer (FastAPI; signed per-visitor workspace cookie; rate limiting; idempotency keys)
    │
@@ -116,7 +116,7 @@ The system prompt (`app/agent/prompts.py`) is about 450 tokens. It defines Remi'
 | **T1** low-risk write | `create_budget`, `categorize_transaction`, `set_rate_alert`, `create_reminder`, `create_credit_plan`, `update_credit_task`, `draft_payment` (each returns undo information) |
 | **T2** money movement | `propose_fx_conversion`, `propose_payment` |
 | **T3** high risk | `propose_add_beneficiary`; any T2 proposal the policy engine escalates |
-| **T4** governance | *Not exposed as tools.* Limits, permissions, kill switch and audit are reachable only from Settings endpoints with step-up |
+| **T4** governance | *Not exposed as tools.* Limits, permissions, kill switch and audit are reachable only from the Security page (human-only endpoints) with step-up |
 
 Every tool has a Pydantic argument schema, so arguments are validated before the handler runs. Every call goes through `run_tool()`, which applies (1) an **allowlist**: the tool must belong to the intent-selected groups, (2) **schema validation**, (3) a **savepoint**: a failing tool rolls back its partial writes, (4) an **audit entry**, and (5) **redaction** of the LLM-visible output (accounts masked, secrets removed).
 
@@ -261,8 +261,8 @@ score = α · cos_norm(q, c) + (1 − α) · bm25_norm(q, c), with α = 0.6, whe
 | T0 Read | automatic, logged | `run_tool` → `audit.append("tool.called")` |
 | T1 Low-risk write | automatic, logged, undo info returned | handlers return `undo` objects |
 | T2 Money movement | explicit human confirmation of an action card; single-use token bound to the payload hash; 5-minute expiry; the LLM never sees it | `policy/actions.py: propose/confirm`, `policy/tokens.py` |
-| T3 High risk | confirmation + step-up OTP (Sandbox phone) + cooling-off for new payees | `actions.step_up`, `_release` → `scheduled`, `run_scheduled` |
-| T4 Governance | not exposed to the agent; human-only Settings endpoints with OTP | `policy/governance.py`, deterministic guardrail refusal |
+| T3 High risk | confirmation + step-up OTP (phone-style notification) + cooling-off for new payees | `actions.step_up`, `_release` → `scheduled`, `run_scheduled` |
+| T4 Governance | not exposed to the agent; human-only Security-page endpoints with OTP | `policy/governance.py`, deterministic guardrail refusal |
 
 ## 7.2 Confirmation tokens
 
@@ -274,11 +274,11 @@ score = α · cos_norm(q, c) + (1 − α) · bm25_norm(q, c), with α = 0.6, whe
 
 ## 7.3 Step-up and cooling-off
 
-A 6-digit OTP (HMAC-stored, 3-minute expiry, 3 attempts then cancel) is pushed over a separate SSE channel to the "Sandbox phone" panel, simulating an SMS. New payees (T3) become active only after `COOLING_OFF_SECONDS` (60 s in demo; hours in production). A confirmed payment to a payee still in cooling-off becomes `scheduled` and is released automatically when the period ends.
+A 6-digit OTP (HMAC-stored, 3-minute expiry, 3 attempts then cancel) is pushed over a separate SSE channel and shown as a phone-style notification, simulating an SMS. New payees (T3) become active only after `COOLING_OFF_SECONDS` (60 s in demo; hours in production). A confirmed payment to a payee still in cooling-off becomes `scheduled` and is released automatically when the period ends.
 
 ## 7.4 Limits (`config/limits.yaml`, USD equivalent)
 
-Per-transaction maximum $30,000 (block) · step-up above $5,000 ($20,000 for registry-verified institutions) · daily soft limit $15,000 (step-up) · daily maximum $40,000 (block) · 30-day maximum $60,000 · velocity 5/hour (step-up) and 12/day (block). Limits can be changed only by the human in Settings, with step-up, up to 5× the default in the sandbox.
+Per-transaction maximum $30,000 (block) · step-up above $5,000 ($20,000 for registry-verified institutions) · daily soft limit $15,000 (step-up) · daily maximum $40,000 (block) · 30-day maximum $60,000 · velocity 5/hour (step-up) and 12/day (block). Limits can be changed only by the human on the Security page, with step-up, up to 5× the default in the sandbox.
 
 **Anti-structuring.** The optimizer marks over-limit providers infeasible with the reason "Remi never splits a payment to get around a limit". If the user explicitly asks for a provider that cannot take the amount, Remi re-routes to a channel that can and explains why (S8). The structuring risk rule catches repeated near-threshold payments.
 
@@ -320,6 +320,17 @@ Signed per-visitor workspaces (isolation is tested), per-IP+workspace rate limit
 * **Explainability object** on every recommendation (inputs, formula, alternatives with reasons, assumptions, timestamp, sources, disclaimer). Risk reasons and policy escalations are listed on every action card.
 * **No speculation.** The FX helper never forecasts; prediction requests get the neutral three-option helper.
 
+## 8.1 Interaction design
+
+Remi is designed for a stressed student reading English as a second language, and for judges who need to see the security story in seconds.
+
+* **One question per screen.** Home ("Am I OK, and what needs my attention?"), Send ("send or pay cheaply and on time"), Wallets, Insights ("how long will my money last?"), Credit, Security ("what can Remi do on its own?") and Help. Secondary detail sits behind "Compare other options", "Fee breakdown", "Why this level of check" and "Technical details".
+* **Ask Remi everywhere.** A chat panel opens from any screen. Replies are short and plain, and the agent's work appears as rich cards built from the same components as the pages: best option, approval card with a live expiry countdown, one-time-code entry, tracking timeline (Sent → On its way → Arrived) with a downloadable receipt, fraud warning, insight and cited-source chips.
+* **Plain language, enforced.** Statuses, tool activity ("Comparing 4 providers…") and audit entries are translated into everyday sentences ("Remi prepared a payment of £9,250 to Northbridge University (demo) · waiting for your approval"). Tier codes appear only as small tags, and money and dates follow fixed rules (symbols, separators, "Thu 22 Oct").
+* **Security made visible.** A permission ladder explains what Remi may do alone, what needs approval, what needs a code and waiting period, and what it can never do. The activity log is readable and shows a "Log verified" badge with a one-click re-check.
+* **Design system.** Remi has its own brand: a lowercase wordmark whose i-dot is an orange coin, plus an `r.` app icon. The palette is warm cream, deep green and one orange accent; type is Bricolage Grotesque and Inter on an eight-style scale. Every colour, size, radius and shadow comes from one token file, every screen is assembled from one component kit, and a design lint fails the build on any hard-coded colour or font size. The interface is light-only, responsive from 390 px, keyboard-accessible and respects reduced motion. Lighthouse (mobile, throttled) scores the landing page 97 / 100 / 100 for performance, accessibility and best practices.
+* **Judges' tools stay out of the student's way.** Sandbox controls (time travel, FX shocks, injected remittance or suspicious invoice, persona switch, AI provider status) live in a small "Demo" drawer.
+
 # 9. Sandbox and data
 
 * **Ledger.** Double-entry `JournalEntry` legs must net to zero per currency (enforced; trial balance tested). Balances are derived from entries. Settlement states: `pending → processing → settled / failed (reversal legs, fee refund)`.
@@ -332,7 +343,7 @@ Signed per-visitor workspaces (isolation is tested), per-IP+workspace rate limit
 <!-- pagebreak -->
 # 10. Testing and evaluation
 
-* **Unit/API tests.** 104 pytest tests: optimizer maths (forward, reverse, percentage fee, cut-off, ranking), Decimal rounding, ledger balance, limits, risk rules (structuring, history, corridor), tiering, confirmation-token binding/expiry/single-use/tamper, OTP attempts, cooling-off release, settlement lifecycle, audit-chain tamper detection (edit, delete, re-hash), redaction, injection detection, invoice fraud, workspace isolation, idempotency double-submit, governance step-up, kill switch, tool allowlist and schema validation, tool-call cap, RAG citations and poisoned-chunk sanitisation, replay-cache key stability, Gemini `thought_signature` passthrough, workspace-scoped invoice ids, `.env` parsing.
+* **Unit/API tests.** 106 pytest tests: optimizer maths (forward, reverse, percentage fee, cut-off, ranking), Decimal rounding, ledger balance, limits, risk rules (structuring, history, corridor), tiering, confirmation-token binding/expiry/single-use/tamper, OTP attempts, cooling-off release, settlement lifecycle, audit-chain tamper detection (edit, delete, re-hash), redaction, injection detection, invoice fraud, workspace isolation, idempotency double-submit, governance step-up, kill switch, tool allowlist and schema validation, tool-call cap, RAG citations and poisoned-chunk sanitisation, replay-cache key stability, Gemini `thought_signature` passthrough, workspace-scoped invoice ids, `.env` parsing.
 * **Golden scenarios.** `evals/run_evals.py` drives S1–S13 through the real HTTP API and checks tools, cards, policy tier, status transitions, final balances, trial balance and audit-chain validity.
 
 | Run | Scenarios | Checks |
@@ -373,7 +384,7 @@ A multi-stage Dockerfile (Node build → Python slim) reads `PORT`, exposes a he
 | Member | University | Role | Responsibilities |
 |---|---|---|---|
 | Syed Nazmus Sakib | East Delta University | Team leader | Agent (LLM orchestration, tools, free-provider fallback), backend (FastAPI, sandbox ledger, optimizer, policy engine), security (permission tiers, confirmation tokens, risk engine, audit chain) |
-| Sadmanul Arefin | Ahsanullah University of Science & Technology | Member | Frontend (React UI, action cards, dashboards), knowledge base (curated articles, RAG content), documentation (technical documentation, guides, deck) |
+| Sadmanul Arefin | Ahsanullah University of Science & Technology | Member | Frontend (React UI, design system, chat cards), knowledge base (curated articles, RAG content), documentation (technical documentation, guides, deck) |
 
 Repository: <https://github.com/sakib-101-git/remi> · License: MIT · Third-party licenses: `THIRD_PARTY_LICENSES.md`.
 
@@ -386,28 +397,34 @@ All screenshots are captured automatically from the running app by `scripts/capt
 
 <div class="figure-grid" markdown="1">
 
-![Dashboard](../evidence/screenshots/02_dashboard.png)
-Dashboard: multi-currency wallets, runway, obligations
+![Landing page](../evidence/screenshots/01_landing.png)
+Landing page with a live sandbox quote
 
-![S1 quotes](../evidence/screenshots/03_chat_s1_quotes.png)
-S1: provider comparison on landed cost
+![Home](../evidence/screenshots/03_home.png)
+Home: balance, Ask Remi, what's next
 
-![Confirmation card](../evidence/screenshots/04_confirm_card.png)
-T2 confirmation card (nothing moves until confirmed)
+![Send](../evidence/screenshots/04_send.png)
+Send: calculator, best option, other options
 
-![Receipt](../evidence/screenshots/05_receipt.png)
-Executed, receipt, live settlement
+![Approval card](../evidence/screenshots/05_chat_s1_review.png)
+S1: Remi's plan and the T2 approval card
 
-![Fraud block](../evidence/screenshots/09_fraud_block.png)
+![Tracking](../evidence/screenshots/06_chat_s1_tracking.png)
+Executed: live tracking and receipt
+
+![Insights](../evidence/screenshots/07_insights.png)
+Insights: how long the money lasts
+
+![Fraud block](../evidence/screenshots/14_fraud_block.png)
 S7: invoice fraud and prompt injection blocked
 
-![Step-up](../evidence/screenshots/10_stepup_phone.png)
-S8: T3 step-up on the Sandbox phone
+![One-time code](../evidence/screenshots/15_stepup_code.png)
+S8: T3 extra check with a one-time code
 
-![RAG sources](../evidence/screenshots/14_rag_sources.png)
-S13: cited knowledge-base answer
+![Cited answer](../evidence/screenshots/16_help_answer.png)
+S13: cited help article
 
-![Audit verified](../evidence/screenshots/11_audit_verified.png)
-Hash-chained audit log, verified
+![Security](../evidence/screenshots/10_security.png)
+Security: permission ladder, limits, pause switch
 
 </div>
