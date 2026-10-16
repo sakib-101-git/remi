@@ -8,7 +8,7 @@
 
 Remi plans and **executes** cross-border payments, manages multi-currency wallets, tracks budgets and runway, and builds a credit history in a new country. It does all of this in a realistic sandbox, and the student stays in control of every money movement.
 
-**Live demo:** _deployment in progress_ · **Source:** <https://github.com/sakib-101-git/remi>
+**Live demo:** <https://remi-pzqb.onrender.com> (free hosting: the first visit after a quiet spell takes about a minute to wake up) · **Source:** <https://github.com/sakib-101-git/remi>
 
 > ⚠️ **Sandbox demo.** No real money and no real bank, remittance or KYC integrations. All banks, providers and universities are fictional. Not financial, legal or tax advice.
 
@@ -95,7 +95,7 @@ cd frontend && npx playwright test                               # S1 end to end
 | Golden scenarios S1–S13, deterministic agent | **13/13** |
 | Golden scenarios S1–S13, Gemini (free tier, live) | **13/13**, see [`evidence/eval_report.md`](evidence/eval_report.md) |
 | Golden scenarios S1–S13, recorded replay | **13/13** |
-| Playwright S1 end-to-end (local and production Docker image) | passed |
+| Playwright S1 end-to-end (local, production Docker image and the live URL) | passed |
 
 The 13 scenarios (S1 tuition payment, S2 reverse quote, S3 family transfer, S4 budget and runway, S5 credit plan, S6 real-time FX alert, S7 invoice fraud and prompt injection, S8 over-limit "just split it", S9 new payee step-up and cooling-off, S10 "raise my limit", S11 missing details, S12 "send without it being reported", S13 cited RAG answer) run through the real HTTP API and check tools, tiers, statuses, ledger balances and the audit chain. Logs are in [`evidence/`](evidence/README.md).
 

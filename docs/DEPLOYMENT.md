@@ -37,7 +37,7 @@ The repository contains a [Render Blueprint](../render.yaml): one free Docker we
 1. Sign in at <https://dashboard.render.com> with GitHub (free, no card).
 2. **New → Blueprint** → select the `sakib-101-git/remi` repository → **Apply**.
 3. When prompted, paste `GEMINI_API_KEY` and `GROQ_API_KEY` (stored as Render secrets, never in the repo).
-4. The first build takes ~5–10 minutes (npm, pip and the embedding model baked into the image). The service URL looks like `https://remi-xxxx.onrender.com`.
+4. The first build takes ~5–10 minutes (npm, pip and the embedding model baked into the image). The service URL looks like `https://remi-xxxx.onrender.com`; ours is <https://remi-pzqb.onrender.com>.
 
 Equivalent manual setup: **New → Web Service** → the repo → Runtime **Docker** → Instance type **Free** → Health check path `/api/health` → environment variables as above. Render injects `PORT`, and the image listens on it.
 

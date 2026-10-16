@@ -361,6 +361,8 @@ Full per-scenario results: `evidence/eval_report.md`, `evidence/eval_results.jso
 
 # 11. Deployment (zero cost)
 
+**Live demo:** <https://remi-pzqb.onrender.com> (Render free web service, Docker). The S1 browser test passes against it (`evidence/live_smoke_test.json`). There, the demo prompts are answered from the recorded Gemini answers (≈ 0.2 s) and new questions go to live Gemini (≈ 20 s on the free tier).
+
 | Layer | Choice | Cost |
 |---|---|---|
 | LLM | Gemini free tier → Groq free → OpenRouter free → Ollama → mock; replay cache | $0 |
