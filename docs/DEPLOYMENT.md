@@ -22,7 +22,7 @@ All settings are environment variables (see `.env.example` for the full list).
 | `OPENROUTER_API_KEY` | – | Optional; `:free` models |
 | `LLM_PROVIDER` / `LLM_FALLBACK` | `gemini` / `gemini,groq,openrouter,ollama,mock` | Providers without a key are skipped; `mock` always answers |
 | `LLM_CACHE` | `replay` | `replay` serves recorded demo answers from `evals/replay_cache.json` first, then goes live |
-| `LLM_DAILY_BUDGET` | `400` | Live LLM calls per day across all visitors; then replay/mock "demo mode" |
+| `LLM_DAILY_BUDGET` | `400` | Live LLM calls per day across all visitors; then recorded answers and the offline agent |
 | `SECRET_KEY` | random in production | Signs workspace cookies and token HMACs. Set it as a secret so cookies survive restarts |
 | `APP_ENV` | `production` in the image | Enables `Secure` cookies |
 | `PORT` | `7860` in the image, `8000` locally | |
@@ -52,7 +52,7 @@ Memory: the container peaks at ≈ 275 MB with local embeddings (≈ 80 MB with 
 
 ### Before judging (warm-up)
 
-Free instances sleep when idle. **Open the URL 5–10 minutes before the presentation** and click through the dashboard once. Check `<live-url>/api/health` → `{"status":"ok",...}`.
+Free instances sleep when idle. **Open the URL 5–10 minutes before the presentation** and click through Home once. Check `<live-url>/api/health` → `{"status":"ok",...}`.
 
 ## 3. Hugging Face Spaces (requires PRO)
 
@@ -87,6 +87,6 @@ The result of the smoke test against the live URL is saved in `evidence/live_smo
 |---|---|
 | `localhost:8000` doesn't open | Use the URL in the "Remi is ready" banner. `start.sh` binds IPv4 and IPv6; `0.0.0.0` is a bind address, not a URL |
 | "Port 8000 is already in use" | Another Remi/dev server is running: stop it or `PORT=8080 ./scripts/start.sh` |
-| Badge shows `mock` / "demo mode" | No LLM key set, daily budget used up, or providers rate-limited. Replay answers still work for the demo scenarios |
+| **Demo → AI model** says "Offline agent (no key)", or answers are generic | No LLM key set, daily budget used up, or providers rate-limited. Replay answers still work for the demo scenarios |
 | Render build slow or service "starting" | The first build takes ~5–10 min (npm + pip + embedding model); after idle sleep the first request takes ~1 min. See the service **Logs** |
 | Visitors lose their sandbox | Expected after a restart or redeploy (ephemeral storage); the workspace re-seeds automatically |

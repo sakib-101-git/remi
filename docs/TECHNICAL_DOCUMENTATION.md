@@ -97,7 +97,7 @@ The layering is enforced in code. Tools in `backend/app/agent/tools.py` can call
 5. **Policy engine.** `evaluate_payment()` checks balance, verified beneficiary, per-transaction, daily and monthly limits, velocity, the registry match and the risk score. Result: **T2** (the verified institution threshold is $20k; the amount is ≈ $12.5k).
 6. **Proposal.** A `PendingAction` is stored with the canonical payload, its SHA-256 `payload_hash`, the tier, the risk reasons and `HMAC(secret, token|action_id|payload_hash)`. The **token** is attached only to the UI card. The LLM receives `{"executed": false, "next_step": "the user must confirm …"}`.
 7. **Explanation.** The model (or the mock agent) writes the explanation from tool outputs. Output validation strips any false "I've sent" claims.
-8. **Human confirmation.** Rahim reviews the card (amount, rate vs mid-market, fee, landed cost, recipient, arrival date, purpose code, source of funds) and presses **Confirm**. The browser POSTs the token with an `Idempotency-Key`.
+8. **Human confirmation.** Rahim reviews the card (amount, rate vs mid-market, fee, landed cost, recipient, arrival date, purpose code, source of funds) and presses **Confirm and send**. The browser POSTs the token with an `Idempotency-Key`.
 9. **Execution.** The server re-verifies the token (not used, not expired, payload hash unchanged, HMAC matches), **re-evaluates policy** against live state, and posts balanced journal entries: wallet −send, fees +fee, in-transit +net. It marks the invoice paid and issues a receipt (`RMI-20261014-XXXXXX`).
 10. **Settlement.** The settlement engine moves the transfer `pending → processing → settled` (in demo mode after a few seconds, otherwise when simulated time passes the arrival date). It posts the payout legs and pushes live status updates over SSE.
 11. **Audit.** Every step (`chat.message`, `tool.called`, `action.proposed`, `action.confirmed`, `action.executed`, `chat.reply`) is chained in the audit log.
@@ -310,7 +310,7 @@ Deterministic pre-checks refuse evasion requests (S12) and governance requests (
 
 ## 7.10 Public-deployment protection
 
-Signed per-visitor workspaces (isolation is tested), per-IP+workspace rate limits (`slowapi`), a daily LLM-call budget that falls back to replay/mock with a visible "demo mode" badge, idle-workspace cleanup after 24 h, security headers (CSP, nosniff, frame-ancestors) and a one-click **kill switch** that blocks all agent money-movement proposals.
+Signed per-visitor workspaces (isolation is tested), per-IP+workspace rate limits (`slowapi`), a daily LLM-call budget that falls back to recorded answers and then the offline agent (the Demo drawer's "AI model" section shows the answer source and live model), idle-workspace cleanup after 24 h, security headers (CSP, nosniff, frame-ancestors) and a one-click **kill switch** that blocks all agent money-movement proposals.
 
 # 8. Compliance and explainability
 
