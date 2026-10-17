@@ -21,12 +21,14 @@ mkdir -p "$PKG"
 echo "==> Assembling $PKG"
 cp docs/TECHNICAL_DOCUMENTATION.pdf "$PKG/01_Technical_Documentation.pdf"
 
-deck=$(ls deck/*.pptx deck/*.pdf 2>/dev/null | head -1 || true)
-if [ -n "$deck" ]; then
-  cp "$deck" "$PKG/02_Presentation_Deck.${deck##*.}"
-  [ "${deck##*.}" = "pptx" ] && pdf=$(ls deck/*.pdf 2>/dev/null | head -1 || true) && [ -n "$pdf" ] && cp "$pdf" "$PKG/02_Presentation_Deck.pdf"
-else
+deck_pptx=$(ls deck/*.pptx 2>/dev/null | head -1 || true)
+deck_pdf=$(ls deck/*.pdf 2>/dev/null | head -1 || true)
+[ -n "$deck_pptx" ] && cp "$deck_pptx" "$PKG/02_Presentation_Deck.pptx"
+[ -n "$deck_pdf" ] && cp "$deck_pdf" "$PKG/02_Presentation_Deck.pdf"
+if [ -z "$deck_pptx$deck_pdf" ]; then
   warn "No deck in deck/ (put the final PPTX/PDF there) - 02 missing"
+elif [ -z "$deck_pdf" ]; then
+  warn "No deck PDF in deck/ - reviewers without the deck fonts will see substitutes in the PPTX"
 fi
 
 video=$(ls "$OUT"/03_Demo_Video.mp4 deck/*.mp4 2>/dev/null | head -1 || true)
